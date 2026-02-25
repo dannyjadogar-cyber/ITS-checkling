@@ -6,103 +6,60 @@
     <title>Admin Dashboard - ITS Portal</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
     <style>
         :root {
-            --primary-gold: #C19A6B;
-            --primary-hover: #A8855F;
-            --glass-bg: rgba(20, 20, 20, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --text-light: #F8F9FA;
-            --card-inner: rgba(0, 0, 0, 0.4);
+            --primary-gold: #C19A6B; --primary-hover: #A8855F; --glass-bg: rgba(20, 20, 20, 0.75); 
+            --glass-border: rgba(255, 255, 255, 0.15); --text-light: #F8F9FA; --card-inner: rgba(0, 0, 0, 0.4);
         }
 
         body { 
             font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light);
             min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background-image: url('image_062684.jpg'); 
+            background-image: url('image_062684.jpg'); /* YOUR CUSTOM BACKGROUND */
             background-color: #111; background-size: cover; background-position: center; background-attachment: fixed;
         }
 
-        .bg-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%); z-index: -1;
-        }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%); z-index: -1; }
 
         .glass-card { 
             background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border); border-radius: 20px; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 90%; max-width: 800px;
-            max-height: 90vh; overflow-y: auto; padding: 40px; display: none;
+            border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: none;
         }
         
         #loginCard { display: block; max-width: 400px; text-align: center; }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; } ::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
 
-        .header-title {
-            font-family: 'Cinzel', serif; font-size: 28px; letter-spacing: 2px; text-align: center;
-            margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px;
-        }
-
-        .section-card {
-            background: var(--card-inner); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 15px; padding: 25px; margin-bottom: 25px;
-        }
+        .header-title { font-family: 'Cinzel', serif; font-size: 28px; letter-spacing: 2px; text-align: center; margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px; }
+        .section-card { background: var(--card-inner); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; margin-bottom: 25px; }
         .section-card h3 { margin-top: 0; font-family: 'Cinzel', serif; color: var(--primary-gold); letter-spacing: 1px; font-size: 20px;}
         .section-card p { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 15px; }
 
-        input[type="text"], input[type="password"], input[type="file"], select { 
-            width: 100%; padding: 12px 15px; font-size: 14px; font-family: 'Poppins', sans-serif;
-            margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; 
-            background-color: rgba(255, 255, 255, 0.05); color: white; box-sizing: border-box; transition: 0.3s;
-        }
+        input[type="text"], input[type="password"], input[type="file"], select { width: 100%; padding: 12px 15px; font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background-color: rgba(255, 255, 255, 0.05); color: white; box-sizing: border-box; transition: 0.3s; }
         input:focus, select:focus { outline: none; border-color: var(--primary-gold); background-color: rgba(255,255,255,0.1); }
-        
-        .flex-row { display: flex; gap: 10px; align-items: flex-start; }
-        .flex-row input { margin-bottom: 0; }
+        .flex-row { display: flex; gap: 10px; align-items: flex-start; } .flex-row input { margin-bottom: 0; }
 
-        button { 
-            padding: 12px 20px; font-size: 14px; font-family: 'Poppins', sans-serif; color: white; 
-            border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; 
-            letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .btn-primary { background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover)); width: 100%; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+        button { padding: 12px 20px; font-size: 14px; font-family: 'Poppins', sans-serif; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover)); width: 100%; } .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
         .btn-action { background: #0056b3; white-space: nowrap; } .btn-action:hover { background: #004494; }
         .btn-success { background: #28a745; white-space: nowrap; } .btn-success:hover { background: #218838; }
         .btn-danger { background: #dc3545; } .btn-danger:hover { background: #c82333; }
         .btn-small { padding: 6px 12px; font-size: 12px; border-radius: 4px; box-shadow: none; }
 
         .item-list { list-style: none; padding: 0; margin: 15px 0 0 0; }
-        .item-row { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-            padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; 
-            display: flex; justify-content: space-between; align-items: center; font-size: 14px;
-        }
-
+        .item-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         .table-container { max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-top: 15px; background: rgba(0,0,0,0.2);}
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        th { background-color: rgba(0,0,0,0.8); position: sticky; top: 0; color: var(--primary-gold); font-family: 'Cinzel', serif;}
-        
+        table { width: 100%; border-collapse: collapse; font-size: 14px; } th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); } th { background-color: rgba(0,0,0,0.8); position: sticky; top: 0; color: var(--primary-gold); font-family: 'Cinzel', serif;}
         .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .badge-active { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745;}
-        .badge-upcoming { background: rgba(255, 255, 255, 0.1); color: #ccc; border: 1px solid #666;}
-        .badge-done { background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid #dc3545;}
+        .badge-active { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745;} .badge-upcoming { background: rgba(255, 255, 255, 0.1); color: #ccc; border: 1px solid #666;} .badge-done { background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid #dc3545;}
     </style>
 </head>
 <body>
-
     <div class="bg-overlay"></div>
 
     <div class="glass-card" id="loginCard">
         <h2 class="header-title">Admin Access</h2>
-        <p style="color: rgba(255,255,255,0.6); margin-bottom: 25px; font-size: 14px;">Enter the master password to manage the ITS Portal.</p>
         <input type="password" id="adminPassword" placeholder="Master Password" style="text-align: center; letter-spacing: 2px;" onkeypress="if(event.key==='Enter') loginAdmin()">
         <button class="btn-primary" onclick="loginAdmin()">Secure Login</button>
     </div>
@@ -112,16 +69,16 @@
 
         <div class="section-card">
             <h3>1. Master Database</h3>
-            <p>Upload your master .csv file. (Column A = ITS number, Column B = Name).</p>
+            <p>Upload your master .csv file. (Column 1 = ITS number, Column 2 = Name).</p>
             <input type="file" id="csvFileInput" accept=".csv">
             <div id="dbStatus" style="font-weight: 600; font-size: 14px; margin-top: 10px;">Checking database...</div>
         </div>
 
         <div class="section-card">
             <h3>2. Custom Event Sessions</h3>
-            <p>Create scanning sessions. They are now automatically set to <strong>Active</strong> when created.</p>
+            <p>Create scanning sessions. They are automatically set to <strong>Active</strong> for volunteers.</p>
             <div class="flex-row">
-                <input type="text" id="newEventName" placeholder="e.g. Ashara Day 1 - Morning" style="flex: 1;" onkeypress="if(event.key==='Enter') createEvent()">
+                <input type="text" id="newEventName" placeholder="e.g. Ashara Day 1" style="flex: 1;" onkeypress="if(event.key==='Enter') createEvent()">
                 <button class="btn-action" onclick="createEvent()">+ Add Event</button>
             </div>
             <ul class="item-list" id="eventList"></ul>
@@ -129,7 +86,7 @@
 
         <div class="section-card">
             <h3>3. Manage Volunteers</h3>
-            <p>Create accounts for volunteers so their names are permanently attached to the scanning logs.</p>
+            <p>Create accounts for volunteers so their names link to the scanning logs.</p>
             <div class="flex-row">
                 <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1;">
                 <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;" onkeypress="if(event.key==='Enter') addVolunteer()">
@@ -165,34 +122,28 @@
 
         <div class="section-card" style="border-color: rgba(220, 53, 69, 0.5); background: rgba(220, 53, 69, 0.1);">
             <h3 style="color: #ff6b6b;">6. System Reset</h3>
-            <p style="color: rgba(255,255,255,0.8);">Wipe all databases, events, volunteers, and logs from this machine.</p>
-            <button class="btn-danger" style="width: 100%;" onclick="clearSystem()">⚠️ WIPE ENTIRE SYSTEM</button>
+            <button class="btn-danger" style="width: 100%;" onclick="clearSystem()">⚠️ WIPE LOCAL STORAGE</button>
         </div>
     </div>
 
     <script>
         const ADMIN_PASSWORD = "admin123"; 
 
-        // CRASH PREVENTION: Safely parse local storage memory
+        // Safely parse local storage memory
         function safeParse(key, fallback) {
             try {
                 let data = localStorage.getItem(key);
                 return data ? JSON.parse(data) : fallback;
-            } catch (e) {
-                console.error("Corrupted memory cleared for:", key);
-                return fallback;
-            }
+            } catch (e) { return fallback; }
         }
 
         function loginAdmin() {
-            const input = document.getElementById('adminPassword').value;
-            if(input === ADMIN_PASSWORD) {
+            if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
                 document.getElementById('loginCard').style.display = 'none';
                 document.getElementById('dashboardCard').style.display = 'block';
                 initAdmin();
             } else {
-                alert("Incorrect Admin Password.");
-                document.getElementById('adminPassword').value = '';
+                alert("Incorrect Admin Password."); document.getElementById('adminPassword').value = '';
             }
         }
 
@@ -202,41 +153,31 @@
                 events = [{ id: "evt_" + Date.now(), name: "Main Event - Day 1", status: "active" }];
                 localStorage.setItem('itsEvents', JSON.stringify(events));
             }
-            renderEvents();
-            renderVolunteers();
-            checkDatabase();
+            renderEvents(); renderVolunteers(); checkDatabase();
         }
 
         function checkDatabase() {
             const masterData = safeParse('masterData', {});
             const dbCount = Object.keys(masterData).length;
             const statusDiv = document.getElementById('dbStatus');
-            if (dbCount > 0) {
-                statusDiv.innerHTML = `<span style="color:#28a745;">✔️ Database Active (${dbCount} profiles loaded)</span>`;
-            } else {
-                statusDiv.innerHTML = `<span style="color:#dc3545;">❌ No Database Loaded</span>`;
-            }
+            statusDiv.innerHTML = dbCount > 0 
+                ? `<span style="color:#28a745;">✔️ Database Active (${dbCount} profiles loaded)</span>` 
+                : `<span style="color:#dc3545;">❌ No Database Loaded</span>`;
         }
 
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
+            const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(event) {
-                const text = event.target.result;
-                const rows = text.split('\n');
+                const rows = event.target.result.split('\n');
                 let parsedData = {};
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i].split(','); 
-                    if (cols.length >= 2 && cols[0].trim() !== "") {
-                        parsedData[cols[0].trim()] = { name: cols[1].trim() };
-                    }
+                    if (cols.length >= 2 && cols[0].trim() !== "") parsedData[cols[0].trim()] = { name: cols[1].trim() };
                 }
                 localStorage.setItem('masterData', JSON.stringify(parsedData));
-                alert("CSV Data successfully imported into the secure system!");
-                checkDatabase();
-                document.getElementById('csvFileInput').value = '';
+                alert("CSV Data securely saved to local browser storage!");
+                checkDatabase(); document.getElementById('csvFileInput').value = '';
             };
             reader.readAsText(file);
         });
@@ -253,18 +194,14 @@
                 list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No custom events created yet.</li>';
                 viewSelect.innerHTML = '<option value="">No Events</option>';
                 exportSelect.innerHTML = '<option value="">No Events</option>';
-                updateLiveLog(); 
-                return;
+                updateLiveLog(); return;
             }
 
             events.forEach(evt => {
                 let badgeClass = evt.status === 'active' ? 'badge-active' : (evt.status === 'upcoming' ? 'badge-upcoming' : 'badge-done');
                 list.innerHTML += `
                     <li class="item-row">
-                        <div>
-                            <span class="status-badge ${badgeClass}" style="margin-right: 10px;">${evt.status}</span>
-                            <strong>${evt.name}</strong>
-                        </div>
+                        <div><span class="status-badge ${badgeClass}" style="margin-right: 10px;">${evt.status}</span><strong>${evt.name}</strong></div>
                         <div class="flex-row">
                             <select class="btn-small" style="margin:0; width: auto; background: rgba(0,0,0,0.5);" onchange="changeEventStatus('${evt.id}', this.value)">
                                 <option value="upcoming" ${evt.status==='upcoming'?'selected':''}>Upcoming</option>
@@ -278,39 +215,26 @@
                 viewSelect.innerHTML += `<option value="${evt.id}">${evt.name}</option>`;
                 exportSelect.innerHTML += `<option value="${evt.id}">${evt.name}</option>`;
             });
-
             updateLiveLog();
         }
 
         function createEvent() {
             const name = document.getElementById('newEventName').value.trim();
             if (!name) return alert("Please enter an event name.");
-
             let events = safeParse('itsEvents', []);
-            const newEvent = {
-                id: "evt_" + Date.now(), 
-                name: name,
-                status: "active" // Defaults to active so volunteers see it instantly!
-            };
-            
-            events.push(newEvent);
+            events.push({ id: "evt_" + Date.now(), name: name, status: "active" });
             localStorage.setItem('itsEvents', JSON.stringify(events));
-            document.getElementById('newEventName').value = '';
-            renderEvents();
+            document.getElementById('newEventName').value = ''; renderEvents();
         }
 
         function changeEventStatus(id, newStatus) {
             let events = safeParse('itsEvents', []);
             let evt = events.find(e => e.id === id);
-            if(evt) {
-                evt.status = newStatus;
-                localStorage.setItem('itsEvents', JSON.stringify(events));
-                renderEvents();
-            }
+            if(evt) { evt.status = newStatus; localStorage.setItem('itsEvents', JSON.stringify(events)); renderEvents(); }
         }
 
         function deleteEvent(id, name) {
-            if(confirm(`Are you sure you want to delete "${name}"? ALL scanning logs for this specific event will be permanently destroyed.`)) {
+            if(confirm(`Delete "${name}" and ALL its local scanning logs?`)) {
                 let events = safeParse('itsEvents', []);
                 events = events.filter(e => e.id !== id);
                 localStorage.setItem('itsEvents', JSON.stringify(events));
@@ -321,14 +245,10 @@
 
         function renderVolunteers() {
             const vols = safeParse('volunteerData', {});
-            const list = document.getElementById('volList');
-            list.innerHTML = '';
-            
+            const list = document.getElementById('volList'); list.innerHTML = '';
             if (Object.keys(vols).length === 0) {
-                list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>';
-                return;
+                list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>'; return;
             }
-
             for(let pwd in vols) {
                 list.innerHTML += `
                     <li class="item-row">
@@ -340,68 +260,46 @@
         }
 
         function addVolunteer() {
-            const name = document.getElementById('volName').value.trim();
-            const pass = document.getElementById('volPass').value.trim();
-            if(!name || !pass) return alert("Please enter both a name and a password.");
-            
+            const name = document.getElementById('volName').value.trim(); const pass = document.getElementById('volPass').value.trim();
+            if(!name || !pass) return alert("Enter name and password.");
             let vols = safeParse('volunteerData', {});
-            if(vols[pass]) return alert("This password is already in use. Choose another.");
-            
-            vols[pass] = name;
-            localStorage.setItem('volunteerData', JSON.stringify(vols));
-            
-            document.getElementById('volName').value = '';
-            document.getElementById('volPass').value = '';
-            renderVolunteers();
+            if(vols[pass]) return alert("Password in use.");
+            vols[pass] = name; localStorage.setItem('volunteerData', JSON.stringify(vols));
+            document.getElementById('volName').value = ''; document.getElementById('volPass').value = ''; renderVolunteers();
         }
 
         function deleteVolunteer(pwd) {
-            if(confirm("Are you sure you want to remove this volunteer?")) {
-                let vols = safeParse('volunteerData', {});
-                delete vols[pwd];
-                localStorage.setItem('volunteerData', JSON.stringify(vols));
-                renderVolunteers();
+            if(confirm("Remove this volunteer?")) {
+                let vols = safeParse('volunteerData', {}); delete vols[pwd];
+                localStorage.setItem('volunteerData', JSON.stringify(vols)); renderVolunteers();
             }
         }
 
         function updateLiveLog() {
             const selectedEventId = document.getElementById('adminViewEvent').value;
             const tbody = document.getElementById('adminLogBody');
-            
-            if (!selectedEventId) {
-                document.getElementById('logStatus').innerText = "No event selected.";
-                tbody.innerHTML = '';
-                return;
-            }
+            if (!selectedEventId) { document.getElementById('logStatus').innerText = "No event selected."; tbody.innerHTML = ''; return; }
 
             const logs = safeParse('scanningLogs_' + selectedEventId, []);
-            document.getElementById('logStatus').innerHTML = `Total Scanned for Event: <strong style="color: white; font-size: 18px;">${logs.length}</strong>`;
-
+            document.getElementById('logStatus').innerHTML = `Total Scanned: <strong style="color: white; font-size: 18px;">${logs.length}</strong>`;
             tbody.innerHTML = '';
             for (let i = logs.length - 1; i >= 0; i--) {
                 const r = logs[i];
                 let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : ""; 
-                let volName = r.volunteer || "Unknown";
-                
-                tbody.innerHTML += `<tr style="${rowColor}">
-                    <td>${r.time}</td>
-                    <td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td>
-                    <td><strong>${r.name}</strong></td>
-                    <td style="color: rgba(255,255,255,0.5);">${volName}</td>
-                    <td><button class="btn-danger btn-small" onclick="undoEntry('${selectedEventId}', ${i})">Undo</button></td>
-                </tr>`;
+                tbody.innerHTML += `<tr style="${rowColor}"><td>${r.time}</td><td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td>
+                    <td><strong>${r.name}</strong></td><td style="color: rgba(255,255,255,0.5);">${r.volunteer || "Unknown"}</td>
+                    <td><button class="btn-danger btn-small" onclick="undoEntry('${selectedEventId}', ${i})">Undo</button></td></tr>`;
             }
         }
 
         function undoEntry(eventId, index) {
-            if (confirm(`Remove this scan? The volunteer's scanner will update automatically.`)) {
-                let logs = safeParse('scanningLogs_' + eventId, []);
-                logs.splice(index, 1);
-                localStorage.setItem('scanningLogs_' + eventId, JSON.stringify(logs));
-                updateLiveLog();
+            if (confirm(`Remove this scan locally?`)) {
+                let logs = safeParse('scanningLogs_' + eventId, []); logs.splice(index, 1);
+                localStorage.setItem('scanningLogs_' + eventId, JSON.stringify(logs)); updateLiveLog();
             }
         }
 
+        // Live syncing across tabs
         window.addEventListener('storage', function(e) {
             if (e.key && e.key.startsWith('scanningLogs_')) updateLiveLog();
             if (e.key === 'masterData') checkDatabase();
@@ -409,39 +307,25 @@
 
         function downloadScanning() {
             const eventId = document.getElementById('exportEventSelect').value;
-            if(!eventId) return alert("Please create an event first.");
-
-            const events = safeParse('itsEvents', []);
-            const eventObj = events.find(e => e.id === eventId);
+            if(!eventId) return alert("No event selected.");
+            const events = safeParse('itsEvents', []); const eventObj = events.find(e => e.id === eventId);
             const eventName = eventObj ? eventObj.name : "Unknown_Event";
-
             const logs = safeParse('scanningLogs_' + eventId, []);
-            if (logs.length === 0) return alert(`No scanning data for "${eventName}" to download.`);
+            if (logs.length === 0) return alert(`No scanning data to download.`);
             
             let csvContent = "data:text/csv;charset=utf-8,Event,Time,ITS number,Name,Scanned By\n";
             logs.forEach(row => { 
-                let volName = row.volunteer || 'Unknown';
-                let safeEventName = eventName.replace(/,/g, '');
-                let safePersonName = row.name.replace(/,/g, '');
+                let volName = row.volunteer || 'Unknown'; let safeEventName = eventName.replace(/,/g, ''); let safePersonName = row.name.replace(/,/g, '');
                 csvContent += `${safeEventName},${row.time},${row.id},${safePersonName},${volName}\n`; 
             });
-            
-            const link = document.createElement("a");
-            link.href = encodeURI(csvContent);
-            
-            const safeFileName = eventName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            link.download = `ITS_Log_${safeFileName}_${new Date().toISOString().split('T')[0]}.csv`;
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const link = document.createElement("a"); link.href = encodeURI(csvContent);
+            link.download = `ITS_Log_${eventName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
         function clearSystem() {
-            if(confirm("DANGER: Are you absolutely sure? This deletes ALL custom events, ALL volunteers, ALL scanning logs, and the master database from this computer.")) {
-                localStorage.clear(); // Safely nukes all memory
-                alert("System has been completely wiped clean.");
-                location.reload(); 
+            if(confirm("DANGER: Wipe all local browser memory for this system?")) {
+                localStorage.clear(); alert("System wiped."); location.reload(); 
             }
         }
     </script>
