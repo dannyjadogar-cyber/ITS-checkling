@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITS Scanning Portal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gold: #C19A6B;
+            --primary-hover: #A8855F;
+            --glass-bg: rgba(20, 20, 20, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-light: #F8F9FA;
+            --success-glow: rgba(40, 167, 69, 0.6);
+            --error-glow: rgba(220, 53, 69, 0.6);
+            --warning-glow: rgba(255, 193, 7, 0.6);
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-image: url('image_062684.jpg'); /* ADD YOUR IMAGE HERE */
+            background-color: #111; background-size: cover; background-position: center; background-attachment: fixed;
+        }
+
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%); z-index: -1;
+        }
+
+        .main-container { width: 100%; display: flex; justify-content: center; padding: 20px; box-sizing: border-box;}
+        
+        .glass-card { 
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); padding: 40px 50px; border-radius: 20px; 
+            width: 100%; max-width: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            transition: box-shadow 0.4s ease; box-sizing: border-box;
+        }
+
+        /* Glow Animations */
+        .glow-green { box-shadow: 0 0 40px var(--success-glow), inset 0 0 20px var(--success-glow) !important; border-color: #28a745 !important; }
+        .glow-red { box-shadow: 0 0 40px var(--error-glow), inset 0 0 20px var(--error-glow) !important; border-color: #dc3545 !important; }
+        .glow-yellow { box-shadow: 0 0 40px var(--warning-glow), inset 0 0 20px var(--warning-glow) !important; border-color: #ffc107 !important; }
+
+        .header-title {
+            font-family: 'Cinzel', serif; font-size: 24px; letter-spacing: 2px; text-align: center;
+            margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px;
+        }
+
+        /* Inputs & Selects */
+        input[type="text"], input[type="password"], select { 
+            width: 100%; padding: 15px 20px; font-size: 16px; font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; 
+            background-color: rgba(255, 255, 255, 0.1); color: white; box-sizing: border-box; transition: 0.3s;
+        }
+        input::placeholder { color: rgba(255,255,255,0.5); }
+        input:focus, select:focus { outline: none; background-color: rgba(255, 255, 255, 0.15); border-color: var(--primary-gold); box-shadow: 0 0 15px rgba(193, 154, 107, 0.3); }
+        input:disabled { background-color: rgba(0,0,0,0.2); cursor: not-allowed; color: rgba(255,255,255,0.3);}
+        
+        select { appearance: none; cursor: pointer; }
+        select option { background-color: #222; color: white; }
+
+        #attendeeId { font-size: 24px; letter-spacing: 4px; text-align: center; font-weight: 600; border-color: var(--primary-gold); }
+
+        /* Buttons */
+        .btn-primary { 
+            width: 100%; padding: 16px; font-size: 16px; font-family: 'Poppins', sans-serif; color: white; 
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover));
+            border: none; border-radius: 10px; cursor: pointer; font-weight: 600; 
+            letter-spacing: 1px; text-transform: uppercase; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.3); margin-bottom: 20px;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.4); }
+        .btn-primary:active { transform: translateY(1px); }
+        .btn-primary:disabled { background: #555; transform: none; box-shadow: none; cursor: not-allowed; color: #888;}
+
+        .btn-undo { 
+            background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.5); color: #ff8888; 
+            padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%; margin-bottom: 20px; display: none; transition: 0.2s;
+        }
+        .btn-undo:hover { background: rgba(220, 53, 69, 0.4); color: white; }
+
+        /* Result Box */
+        #scanResult { 
+            font-size: 18px; text-align: center; min-height: 70px; padding: 15px; border-radius: 10px; 
+            background: rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px dashed rgba(255,255,255,0.2); 
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .result-name { font-size: 24px; font-weight: 600; margin-top: 5px; color: white;}
+
+        /* Search Section */
+        .search-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-bottom: 10px; }
+        .search-container label { display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+        .search-item { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; 
+            transition: 0.2s; display: flex; justify-content: space-between; align-items: center;
+        }
+        .search-item:hover { background: rgba(255,255,255,0.15); border-color: var(--primary-gold); }
+
+        /* Stats */
+        .stats-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .stat-box { text-align: left; }
+        .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); }
+        .stat-value { font-size: 16px; color: var(--primary-gold); font-weight: 600; }
+        .stat-large { font-size: 28px; color: white; line-height: 1; margin-top: 5px;}
+        
+        #scannerView { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <div class="main-container">
+        <div class="glass-card" id="mainCard">
+            
+            <h2 class="header-title">Idaratut Ta'reef Al Shakhsi</h2>
+
+            <div id="loginView">
+                <div style="text-align: center; margin-bottom: 25px; color: rgba(255,255,255,0.7); font-size: 14px;">
+                    Volunteer Access Portal
+                </div>
+                
+                <input type="password" id="volPassword" placeholder="Enter Unique Password" onkeypress="if(event.key==='Enter') loginVolunteer()">
+                <button class="btn-primary" onclick="loginVolunteer()">Secure Login</button>
+            </div>
+
+            <div id="scannerView">
+                
+                <select id="volunteerEventSelect" onchange="switchEvent()">
+                    <option value="">-- Select Active Session --</option>
+                </select>
+
+                <input type="text" id="attendeeId" maxlength="8" placeholder="ENTER ITS NUMBER" onkeypress="handleKeyPress(event)" disabled>
+                <button class="btn-primary" id="submitBtn" onclick="verifyAndLog()" disabled>Log Attendance</button>
+                
+                <div id="scanResult">
+                    <span style="color: rgba(255,255,255,0.5);">Awaiting session selection...</span>
+                </div>
+                
+                <button id="undoBtn" class="btn-undo" onclick="undoLastScan()">↩️ Undo Previous Scan</button>
+
+                <div class="search-container">
+                    <label>Manual Name Search</label>
+                    <input type="text" id="searchInput" placeholder="Type attendee name..." onkeyup="searchAttendee()" disabled style="margin-bottom: 10px; font-size: 14px; padding: 12px;">
+                    <div id="searchResults"></div>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-label">Volunteer</div>
+                        <div class="stat-value" id="volNameDisplay">-</div>
+                    </div>
+                    <div class="stat-box" style="text-align: right;">
+                        <div class="stat-label">Total Inside</div>
+                        <div class="stat-large" id="totalCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let masterData = {}; 
+        let checkedInList = []; 
+        let currentEventId = "";
+        let currentEventName = "";
+        let currentVolunteerName = "";
+
+        // --- AUDIO ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (type === 'success') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.1);
+            } else {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        function flashPanel(colorClass) {
+            const card = document.getElementById('mainCard');
+            card.classList.add(colorClass);
+            setTimeout(() => { card.classList.remove(colorClass); }, 600);
+        }
+
+        // --- LOGIN ---
+        function loginVolunteer() {
+            const pass = document.getElementById('volPassword').value.trim();
+            const vols = JSON.parse(localStorage.getItem('volunteerData')) || {};
+            
+            if(vols[pass]) {
+                currentVolunteerName = vols[pass];
+                document.getElementById('loginView').style.display = 'none';
+                document.getElementById('scannerView').style.display = 'block';
+                document.getElementById('volNameDisplay').innerText = currentVolunteerName;
+                initScanner();
+            } else {
+                alert("❌ Invalid password. Ask Admin to setup your account.");
+                document.getElementById('volPassword').value = '';
+            }
+        }
+
+        // --- SCANNER SETUP ---
+        function initScanner() {
+            masterData = JSON.parse(localStorage.getItem('masterData')) || {};
+            if (Object.keys(masterData).length === 0) {
+                document.getElementById('scanResult').innerHTML = "<span style='color:#dc3545;'>⚠️ System Error: No Database Loaded.</span>";
+            }
+
+            const dropdown = document.getElementById('volunteerEventSelect');
+            const events = JSON.parse(localStorage.getItem('itsEvents')) || [];
+            
+            dropdown.innerHTML = '<option value="">-- Select Active Session --</option>';
+            let activeEventsFound = false;
+
+            // Load dynamically created events that are marked 'active'
+            events.forEach(evt => {
+                if(evt.status === 'active') {
+                    dropdown.innerHTML += `<option value="${evt.id}" data-name="${evt.name}">${evt.name}</option>`;
+                    activeEventsFound = true;
+                }
+            });
+
+            if (!activeEventsFound) dropdown.innerHTML = '<option value="">-- No Active Sessions Available --</option>';
+        }
+
+        function switchEvent() {
+            const selectEl = document.getElementById('volunteerEventSelect');
+            currentEventId = selectEl.value;
+            
+            if (currentEventId !== "") {
+                // Grab the text name of the event from the dropdown
+                currentEventName = selectEl.options[selectEl.selectedIndex].getAttribute('data-name');
+            } else {
+                currentEventName = "";
+            }
+
+            const inputField = document.getElementById('attendeeId');
+            const submitBtn = document.getElementById('submitBtn');
+            const searchInput = document.getElementById('searchInput');
+
+            if (currentEventId === "") {
+                inputField.disabled = true; submitBtn.disabled = true; searchInput.disabled = true;
+                document.getElementById('scanResult').innerHTML = "<span style='color: rgba(255,255,255,0.5);'>Awaiting session selection...</span>";
+                document.getElementById('totalCount').innerText = "0";
+                document.getElementById('undoBtn').style.display = 'none';
+            } else {
+                inputField.disabled = false; submitBtn.disabled = false; searchInput.disabled = false;
+                document.getElementById('scanResult').innerHTML = `<span style='color: var(--primary-gold);'>Ready for "${currentEventName}" scans...</span>`;
+                
+                checkedInList = JSON.parse(localStorage.getItem('scanningLogs_' + currentEventId)) || [];
+                document.getElementById('totalCount').innerText = checkedInList.length;
+                
+                checkUndoVisibility();
+                inputField.focus();
+            }
+        }
+
+        function checkUndoVisibility() {
+            document.getElementById('undoBtn').style.display = (currentEventId !== "" && checkedInList.length > 0) ? 'block' : 'none';
+        }
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'scanningLogs_' + currentEventId) {
+                checkedInList = JSON.parse(localStorage.getItem('scanningLogs_' + currentEventId)) || [];
+                document.getElementById('totalCount').innerText = checkedInList.length;
+                checkUndoVisibility();
+            }
+            if (e.key === 'itsEvents') {
+                let tempId = currentEventId;
+                initScanner(); 
+                document.getElementById('volunteerEventSelect').value = tempId;
+            }
+        });
+
+        function handleKeyPress(event) { if (event.key === "Enter") verifyAndLog(); }
+
+        // --- SEARCH ---
+        function searchAttendee() {
+            if (currentEventId === "") return;
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = ''; 
+
+            if (query.length < 2) return; 
+
+            let matchCount = 0;
+            for (const [id, person] of Object.entries(masterData)) {
+                if (person.name.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerHTML = `
+                        <strong style="color: #fff; font-size: 14px;">${person.name}</strong>
+                        <small style="color: var(--primary-gold); font-family: monospace; font-size: 14px;">${id}</small>
+                    `;
+                    div.onclick = function() {
+                        document.getElementById('attendeeId').value = id;
+                        document.getElementById('searchInput').value = '';
+                        resultsDiv.innerHTML = '';
+                        verifyAndLog(); 
+                    };
+                    resultsDiv.appendChild(div);
+                    matchCount++;
+                }
+                if (matchCount >= 4) break; 
+            }
+            if (matchCount === 0) resultsDiv.innerHTML = "<div style='color:#dc3545; padding:10px; font-size: 14px;'>No matches found.</div>";
+        }
+
+        // --- UNDO ---
+        function undoLastScan() {
+            if (checkedInList.length === 0 || currentEventId === "") return;
+            
+            let removedPerson = checkedInList.pop();
+            localStorage.setItem('scanningLogs_' + currentEventId, JSON.stringify(checkedInList));
+            
+            document.getElementById('totalCount').innerText = checkedInList.length;
+            document.getElementById('scanResult').innerHTML = `
+                <span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Scan Removed</span>
+                <span class='result-name' style='color:#aaa; text-decoration: line-through;'>${removedPerson.name}</span>
+            `;
+            
+            checkUndoVisibility();
+            document.getElementById('attendeeId').focus();
+        }
+
+        // --- VERIFY ---
+        function verifyAndLog() {
+            if (currentEventId === "") return alert("You must select a Session from the dropdown first.");
+
+            const inputField = document.getElementById('attendeeId');
+            const inputId = inputField.value.trim();
+            const resultDiv = document.getElementById('scanResult');
+
+            if (Object.keys(masterData).length === 0) return alert("Database empty. Ask Admin to load data.");
+            
+            if (inputId.length !== 8) {
+                playSound('error'); flashPanel('glow-red');
+                resultDiv.innerHTML = `
+                    <span style='color:#dc3545; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Error</span>
+                    <span class='result-name' style='color:#dc3545;'>Invalid ITS Number</span>
+                `;
+                inputField.value = ''; return;
+            }
+
+            const alreadyCheckedIn = checkedInList.some(record => record.id === inputId);
+
+            if (alreadyCheckedIn) {
+                playSound('error'); flashPanel('glow-yellow');
+                let displayName = masterData[inputId] ? masterData[inputId].name : "Mehman";
+                resultDiv.innerHTML = `
+                    <span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Already Scanned In</span>
+                    <span class='result-name'>${displayName}</span>
+                `;
+            } else {
+                playSound('success'); flashPanel('glow-green');
+                const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                
+                if (masterData[inputId]) {
+                    const person = masterData[inputId];
+                    resultDiv.innerHTML = `
+                        <span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Access Granted</span>
+                        <span class='result-name'>${person.name}</span>
+                    `;
+                    checkedInList.push({ time: timeNow, id: inputId, name: person.name, volunteer: currentVolunteerName });
+                } else {
+                    resultDiv.innerHTML = `
+                        <span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Guest Approved</span>
+                        <span class='result-name'>Mehman</span>
+                    `;
+                    checkedInList.push({ time: timeNow, id: inputId, name: "Mehman", volunteer: currentVolunteerName });
+                }
+
+                localStorage.setItem('scanningLogs_' + currentEventId, JSON.stringify(checkedInList));
+                document.getElementById('totalCount').innerText = checkedInList.length;
+                checkUndoVisibility();
+            }
+            
+            inputField.value = ''; 
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '';
+            inputField.focus(); 
+        }
+    </script>
+</body>
+</html>
