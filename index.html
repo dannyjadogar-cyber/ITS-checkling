@@ -47,6 +47,7 @@
 
             <div id="loginView">
                 <div style="text-align: center; margin-bottom: 25px; color: rgba(255,255,255,0.7); font-size: 14px;">Volunteer Access Portal</div>
+                <div id="dbStatus" style="font-size: 12px; color: #ffc107; text-align: center; margin-bottom: 10px;">Fetching Master Database...</div>
                 <input type="password" id="volPassword" placeholder="Enter Unique Password" onkeypress="if(event.key==='Enter') loginVolunteer()">
                 <button class="btn-primary" onclick="loginVolunteer()">Secure Login</button>
             </div>
@@ -60,7 +61,7 @@
 
                 <div class="search-container">
                     <label>Manual Name Search</label>
-                    <input type="text" id="searchInput" placeholder="Type name..." onkeyup="searchAttendee()" disabled style="margin-bottom: 10px; font-size: 14px; padding: 12px;">
+                    <input type="text" id="searchInput" placeholder="Type attendee name..." onkeyup="searchAttendee()" disabled style="margin-bottom: 10px; font-size: 14px; padding: 12px;">
                     <div id="searchResults"></div>
                 </div>
 
@@ -81,6 +82,28 @@
         function flashPanel(colorClass) { const card = document.getElementById('mainCard'); card.classList.add(colorClass); setTimeout(() => { card.classList.remove(colorClass); }, 600); }
         function safeParse(key, fallback) { try { let data = localStorage.getItem(key); return data ? JSON.parse(data) : fallback; } catch (e) { return fallback; } }
 
+        // AUTO-FETCH ITS.csv ON LOAD
+        window.onload = async function() {
+            try {
+                const response = await fetch('ITS.csv');
+                if (response.ok) {
+                    const text = await response.text();
+                    const rows = text.split('\n');
+                    let parsedData = {};
+                    for (let i = 1; i < rows.length; i++) {
+                        const cols = rows[i].split(','); 
+                        if (cols.length >= 2 && cols[0].trim() !== "") parsedData[cols[0].trim()] = { name: cols[1].trim() };
+                    }
+                    localStorage.setItem('masterData', JSON.stringify(parsedData));
+                    document.getElementById('dbStatus').innerHTML = "<span style='color: #28a745;'>Database Sync Complete ✔️</span>";
+                } else {
+                    document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>Failed to find ITS.csv on server.</span>";
+                }
+            } catch (e) {
+                document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>Offline Mode. Using local database.</span>";
+            }
+        };
+
         function loginVolunteer() {
             const pass = document.getElementById('volPassword').value.trim();
             const vols = safeParse('volunteerData', {});
@@ -90,12 +113,12 @@
                 document.getElementById('scannerView').style.display = 'block';
                 document.getElementById('volNameDisplay').innerText = currentVolunteerName;
                 initScanner();
-            } else { alert("❌ Invalid password."); document.getElementById('volPassword').value = ''; }
+            } else { alert("❌ Invalid password. Did the Admin set up your account on this device?"); document.getElementById('volPassword').value = ''; }
         }
 
         function initScanner() {
             masterData = safeParse('masterData', {});
-            if (Object.keys(masterData).length === 0) document.getElementById('scanResult').innerHTML = "<span style='color:#dc3545;'>⚠️ System Error: No Local Database Loaded.</span>";
+            if (Object.keys(masterData).length === 0) document.getElementById('scanResult').innerHTML = "<span style='color:#dc3545;'>⚠️ Error: No Database Loaded.</span>";
             
             const dropdown = document.getElementById('volunteerEventSelect');
             const daysData = safeParse('itsFixedDays', {});
@@ -103,7 +126,6 @@
             dropdown.innerHTML = '<option value="">-- Select Active Session --</option>';
             let activeFound = false;
             
-            // Loop through 1 to 10
             for(let i=1; i<=10; i++) {
                 let day = daysData[i];
                 if(day && day.status === 'active') {
@@ -111,7 +133,7 @@
                     activeFound = true;
                 }
             }
-            if (!activeFound) dropdown.innerHTML = '<option value="">-- No Active Sessions Available --</option>';
+            if (!activeFound) dropdown.innerHTML = '<option value="">-- No Active Sessions Set by Admin --</option>';
         }
 
         function switchEvent() {
@@ -188,14 +210,14 @@
             if (alreadyCheckedIn) {
                 playSound('error'); flashPanel('glow-yellow');
                 let displayName = masterData[inputId] ? masterData[inputId].name : "Mehman";
-                resultDiv.innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Already Scanned</span><span class='result-name'>${displayName}</span>`;
+                resultDiv.innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Already Inside</span><span class='result-name'>${displayName}</span>`;
             } else {
                 playSound('success'); flashPanel('glow-green');
                 const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
                 
                 if (masterData[inputId]) {
                     const person = masterData[inputId];
-                    resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>DONE SCAN</span><span class='result-name'>${person.name}</span>`;
+                    resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Access Granted</span><span class='result-name'>${person.name}</span>`;
                     checkedInList.push({ time: timeNow, id: inputId, name: person.name, volunteer: currentVolunteerName });
                 } else {
                     resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Guest Approved</span><span class='result-name'>Mehman</span>`;
