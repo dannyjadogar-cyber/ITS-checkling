@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - ITS Portal</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --primary-gold: #C19A6B; --primary-hover: #A8855F; --glass-bg: rgba(20, 20, 20, 0.75); --glass-border: rgba(255, 255, 255, 0.15); --text-light: #F8F9FA; --card-inner: rgba(0, 0, 0, 0.4); }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: url('image_062684.jpg'); background-color: #111; background-size: cover; background-position: center; background-attachment: fixed; }
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%); z-index: -1; }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: none; }
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: none; }
         #loginCard { display: block; max-width: 400px; text-align: center; }
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; } ::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
         .header-title { font-family: 'Cinzel', serif; font-size: 28px; letter-spacing: 2px; text-align: center; margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px; }
         .section-card { background: var(--card-inner); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; margin-bottom: 25px; }
         .section-card h3 { margin-top: 0; font-family: 'Cinzel', serif; color: var(--primary-gold); letter-spacing: 1px; font-size: 20px;}
-        .section-card p { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 15px; }
-        input[type="text"], input[type="password"], input[type="file"], select { width: 100%; padding: 12px 15px; font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background-color: rgba(255, 255, 255, 0.05); color: white; box-sizing: border-box; transition: 0.3s; }
+        input, select { width: 100%; padding: 12px 15px; font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background-color: rgba(255, 255, 255, 0.05); color: white; box-sizing: border-box; transition: 0.3s; }
         input:focus, select:focus { outline: none; border-color: var(--primary-gold); background-color: rgba(255,255,255,0.1); }
         .flex-row { display: flex; gap: 10px; align-items: center; } .flex-row input, .flex-row select { margin-bottom: 0; }
         button { padding: 12px 20px; font-size: 14px; font-family: 'Poppins', sans-serif; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
@@ -43,24 +43,22 @@
     </div>
 
     <div class="glass-card" id="dashboardCard">
-        <h2 class="header-title">⚙️ ITS Master Control</h2>
+        <h2 class="header-title">⚙️ ITS Cloud Center</h2>
 
         <div class="section-card">
             <h3>1. Master Database</h3>
-            <p>The system will automatically try to load <strong>ITS.csv</strong> from GitHub.</p>
-            <div id="dbStatus" style="font-weight: 600; font-size: 14px; margin-bottom: 15px;">Fetching database...</div>
-            <p style="font-size: 12px; margin-bottom: 5px;">(Backup) Manual Upload:</p>
-            <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom:0;">
+            <p style="font-size: 13px; color: #ccc;">The system fetches <b>ITS.csv</b> directly from your GitHub repository for verification.</p>
+            <div id="dbStatus" style="font-weight: 600; font-size: 14px; color: #ffc107;">Fetching database from GitHub...</div>
         </div>
 
         <div class="section-card">
-            <h3>2. Manage 10 Days</h3>
-            <p>Rename your 10 days and set them to Active for the volunteers.</p>
+            <h3>2. Manage 10 Days (Live Sync)</h3>
+            <p style="font-size: 13px; color: #ccc;">Changes here instantly sync to all volunteer phones.</p>
             <div id="daysContainer"></div>
         </div>
 
         <div class="section-card">
-            <h3>3. Manage Volunteers</h3>
+            <h3>3. Manage Volunteers (Live Sync)</h3>
             <div class="flex-row">
                 <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1; margin-bottom: 0;">
                 <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1; margin-bottom: 0;" onkeypress="if(event.key==='Enter') addVolunteer()">
@@ -70,43 +68,50 @@
         </div>
 
         <div class="section-card">
-            <h3>4. Local Scanning Monitor</h3>
-            <p style="color: #ffc107; font-size: 12px;">⚠️ Note: On GitHub, this will only show scans performed on THIS specific laptop.</p>
+            <h3>4. Live Global Monitor</h3>
+            <p style="font-size: 13px; color: #ccc;">Watch scans from ALL doors happen in real-time.</p>
             <div class="flex-row" style="margin-bottom: 15px;">
-                <select id="adminViewEvent" style="flex: 1; margin: 0;" onchange="updateLiveLog()"></select>
-                <button class="btn-action" onclick="updateLiveLog()">🔄 Refresh View</button>
+                <select id="adminViewEvent" style="flex: 1; margin: 0;" onchange="loadLogsForView()"></select>
             </div>
             <div id="logStatus" style="font-weight: 600; font-size: 14px; color: var(--primary-gold);">Total Scanned: 0</div>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Time</th><th>ITS number</th><th>Name</th><th>Volunteer</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Time</th><th>ITS number</th><th>Name</th><th>Door Vol.</th><th>Action</th></tr></thead>
                     <tbody id="adminLogBody"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="section-card">
-            <h3>5. Download Reports</h3>
+            <h3>5. Download Global Reports</h3>
+            <p style="font-size: 13px; color: #ccc;">Export the combined cloud database for a session.</p>
             <div class="flex-row">
                 <select id="exportEventSelect" style="flex: 1; margin: 0;"></select>
-                <button class="btn-success" onclick="downloadScanning()">📥 Export CSV</button>
+                <button class="btn-success" onclick="downloadScanning()">📥 Export Global CSV</button>
             </div>
-        </div>
-
-        <div class="section-card" style="border-color: rgba(220, 53, 69, 0.5); background: rgba(220, 53, 69, 0.1);">
-            <h3 style="color: #ff6b6b;">6. System Reset</h3>
-            <button class="btn-danger" style="width: 100%;" onclick="clearSystem()">⚠️ WIPE LOCAL STORAGE</button>
         </div>
     </div>
 
     <script>
         const ADMIN_PASSWORD = "admin123"; 
 
-        function getStorage(key, fallback) {
-            try { let data = localStorage.getItem(key); return data ? JSON.parse(data) : fallback; } 
-            catch (e) { return fallback; }
-        }
-        function setStorage(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+        // 🔴 🔴 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 🔴 🔴
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "123456",
+            appId: "1:12345:web:abcd"
+        };
+        // --------------------------------------------------
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let globalDays = {};
+        let globalLogs = [];
 
         function loginAdmin() {
             if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
@@ -117,64 +122,39 @@
         }
 
         async function initAdmin() {
-            let daysData = getStorage('itsFixedDays', null);
-            if (!daysData) {
-                daysData = {};
-                for(let i=1; i<=10; i++) daysData[i] = { name: `Day ${i}`, status: i === 1 ? 'active' : 'upcoming' };
-                setStorage('itsFixedDays', daysData);
-            }
-            
-            renderDays(); renderVolunteers(); updateLiveLog();
-            
-            // AUTO-FETCH ITS.csv FROM GITHUB
+            // Load ITS.csv from GitHub
             try {
-                document.getElementById('dbStatus').innerHTML = `<span style="color:#ffc107;">🔄 Fetching ITS.csv from server...</span>`;
                 const response = await fetch('ITS.csv');
-                if (response.ok) {
-                    const text = await response.text();
-                    processCSVText(text, true);
-                } else {
-                    checkDatabase(); // Fallback to whatever is in memory
+                if (response.ok) document.getElementById('dbStatus').innerHTML = "<span style='color: #28a745;'>✔️ Connected to GitHub ITS.csv</span>";
+                else document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>❌ Could not find ITS.csv on GitHub.</span>";
+            } catch (e) { document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>❌ Offline / Fetch Error.</span>"; }
+
+            // Initialize Cloud Listeners
+            db.ref('config/days').on('value', snap => {
+                globalDays = snap.val();
+                if (!globalDays) {
+                    globalDays = {};
+                    for(let i=1; i<=10; i++) globalDays[i] = { name: `Day ${i}`, status: i === 1 ? 'active' : 'upcoming' };
+                    db.ref('config/days').set(globalDays);
                 }
-            } catch (e) {
-                checkDatabase();
-            }
+                const firebaseConfig = {
+                    apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
+                    authDomain: "its-scanning-f8f5a.firebaseapp.com",
+                    databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
+                    projectId: "its-scanning-f8f5a",
+                    storageBucket: "its-scanning-f8f5a.firebasestorage.app",
+                    messagingSenderId: "590874259733",
+                    appId: "1:590874259733:web:314d6a1fadb3780429b91c"
+                };
+                renderDays();
+            });
+
+            db.ref('config/volunteers').on('value', snap => {
+                renderVolunteers(snap.val() || {});
+            });
         }
 
-        function processCSVText(text, isAutoLoad) {
-            const rows = text.split('\n');
-            let parsedData = {};
-            for (let i = 1; i < rows.length; i++) {
-                const cols = rows[i].split(','); 
-                if (cols.length >= 2 && cols[0].trim() !== "") parsedData[cols[0].trim()] = { name: cols[1].trim() };
-            }
-            setStorage('masterData', parsedData);
-            checkDatabase();
-            if(!isAutoLoad) alert("CSV Data securely saved!");
-        }
-
-        function checkDatabase() {
-            const masterData = getStorage('masterData', {});
-            const dbCount = Object.keys(masterData).length;
-            const statusDiv = document.getElementById('dbStatus');
-            statusDiv.innerHTML = dbCount > 0 
-                ? `<span style="color:#28a745;">✔️ Database Active (${dbCount} profiles loaded)</span>` 
-                : `<span style="color:#dc3545;">❌ No Database Loaded. Missing ITS.csv!</span>`;
-        }
-
-        document.getElementById('csvFileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                processCSVText(event.target.result, false);
-                document.getElementById('csvFileInput').value = '';
-            };
-            reader.readAsText(file);
-        });
-
-        // (The rest of the rendering functions remain exactly the same)
         function renderDays() {
-            const daysData = getStorage('itsFixedDays', {});
             const container = document.getElementById('daysContainer');
             const viewSelect = document.getElementById('adminViewEvent');
             const exportSelect = document.getElementById('exportEventSelect');
@@ -182,13 +162,14 @@
             container.innerHTML = ''; viewSelect.innerHTML = ''; exportSelect.innerHTML = '';
 
             for(let i=1; i<=10; i++) {
-                let day = daysData[i];
+                let day = globalDays[i];
+                if(!day) continue;
                 let bg = day.status === 'active' ? 'rgba(40, 167, 69, 0.2)' : (day.status === 'done' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)');
                 
                 container.innerHTML += `
                     <div class="day-row" style="background: ${bg};">
                         <strong style="width: 50px; color: var(--primary-gold);">Slot ${i}</strong>
-                        <input type="text" value="${day.name}" onchange="updateDayName(${i}, this.value)" style="flex:1; margin:0;" placeholder="Name this session...">
+                        <input type="text" value="${day.name}" onchange="updateDayName(${i}, this.value)" style="flex:1; margin:0;">
                         <select onchange="updateDayStatus(${i}, this.value)" style="width:130px; margin:0; background: rgba(0,0,0,0.5);">
                             <option value="upcoming" ${day.status==='upcoming'?'selected':''}>Upcoming</option>
                             <option value="active" ${day.status==='active'?'selected':''}>Active</option>
@@ -199,14 +180,15 @@
                 viewSelect.innerHTML += `<option value="${i}">${day.name}</option>`;
                 exportSelect.innerHTML += `<option value="${i}">${day.name}</option>`;
             }
-            if (currentView) viewSelect.value = currentView;
+            if (currentView && globalDays[currentView]) viewSelect.value = currentView;
+            loadLogsForView();
         }
 
-        function updateDayName(slotNum, newName) { let daysData = getStorage('itsFixedDays', {}); daysData[slotNum].name = newName || `Day ${slotNum}`; setStorage('itsFixedDays', daysData); renderDays(); }
-        function updateDayStatus(slotNum, newStatus) { let daysData = getStorage('itsFixedDays', {}); daysData[slotNum].status = newStatus; setStorage('itsFixedDays', daysData); renderDays(); }
+        function updateDayName(slotNum, newName) { db.ref(`config/days/${slotNum}/name`).set(newName || `Day ${slotNum}`); }
+        function updateDayStatus(slotNum, newStatus) { db.ref(`config/days/${slotNum}/status`).set(newStatus); }
 
-        function renderVolunteers() {
-            const vols = getStorage('volunteerData', {}); const list = document.getElementById('volList'); list.innerHTML = '';
+        function renderVolunteers(vols) {
+            const list = document.getElementById('volList'); list.innerHTML = '';
             if (Object.keys(vols).length === 0) { list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>'; return; }
             for(let pwd in vols) {
                 list.innerHTML += `<li class="item-row"><span><strong>${vols[pwd]}</strong> <span style="color:var(--primary-gold); margin-left:10px;">(Pass: ${pwd})</span></span><button class="btn-danger btn-small" onclick="deleteVolunteer('${pwd}')">Remove</button></li>`;
@@ -214,41 +196,58 @@
         }
 
         function addVolunteer() {
-            const nameInput = document.getElementById('volName'); const passInput = document.getElementById('volPass');
-            const name = nameInput.value.trim(); const pass = passInput.value.trim();
+            const name = document.getElementById('volName').value.trim(); const pass = document.getElementById('volPass').value.trim();
             if(!name || !pass) return alert("Enter name and password.");
-            let vols = getStorage('volunteerData', {}); if(vols[pass]) return alert("Password in use.");
-            vols[pass] = name; setStorage('volunteerData', vols); nameInput.value = ''; passInput.value = ''; renderVolunteers();
+            db.ref(`config/volunteers/${pass}`).set(name);
+            document.getElementById('volName').value = ''; document.getElementById('volPass').value = '';
         }
 
-        function deleteVolunteer(pwd) { if(confirm("Remove this volunteer?")) { let vols = getStorage('volunteerData', {}); delete vols[pwd]; setStorage('volunteerData', vols); renderVolunteers(); } }
+        function deleteVolunteer(pwd) { if(confirm("Remove this volunteer?")) db.ref(`config/volunteers/${pwd}`).remove(); }
 
-        function updateLiveLog() {
-            const slotId = document.getElementById('adminViewEvent').value; const tbody = document.getElementById('adminLogBody');
+        let currentLogListener = null;
+
+        function loadLogsForView() {
+            const slotId = document.getElementById('adminViewEvent').value;
             if (!slotId) return;
-            const logs = getStorage('scanningLogs_slot_' + slotId, []);
-            document.getElementById('logStatus').innerHTML = `Total Scanned: <strong style="color: white; font-size: 18px;">${logs.length}</strong>`;
-            tbody.innerHTML = '';
-            for (let i = logs.length - 1; i >= 0; i--) {
-                const r = logs[i]; let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : "";
-                tbody.innerHTML += `<tr style="${rowColor}"><td>${r.time}</td><td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td><td><strong>${r.name}</strong></td><td style="color: rgba(255,255,255,0.5);">${r.volunteer || "Unknown"}</td><td><button class="btn-danger btn-small" onclick="undoEntry('${slotId}', ${i})">Undo</button></td></tr>`;
+
+            // Turn off old listener to prevent mixed data
+            if (currentLogListener) db.ref(currentLogListener).off();
+            currentLogListener = `logs/slot_${slotId}`;
+
+            // Listen to the cloud database live
+            db.ref(currentLogListener).on('value', snap => {
+                const logsData = snap.val() || {};
+                // Convert Firebase object to array so we can map it
+                globalLogs = Object.keys(logsData).map(key => ({...logsData[key], fbKey: key}));
+                
+                const tbody = document.getElementById('adminLogBody');
+                document.getElementById('logStatus').innerHTML = `Total Scanned Globally: <strong style="color: white; font-size: 18px;">${globalLogs.length}</strong>`;
+                tbody.innerHTML = '';
+                
+                // Show newest at the top
+                for (let i = globalLogs.length - 1; i >= 0; i--) {
+                    const r = globalLogs[i]; 
+                    let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : "";
+                    tbody.innerHTML += `<tr style="${rowColor}"><td>${r.time}</td><td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td><td><strong>${r.name}</strong></td><td style="color: rgba(255,255,255,0.5);">${r.volunteer || "Unknown"}</td><td><button class="btn-danger btn-small" onclick="undoCloudEntry('${slotId}', '${r.fbKey}')">Undo</button></td></tr>`;
+                }
+            });
+        }
+
+        function undoCloudEntry(slotId, fbKey) {
+            if (confirm(`Delete this scan from the cloud? It will instantly update on all phones.`)) {
+                db.ref(`logs/slot_${slotId}/${fbKey}`).remove();
             }
         }
 
-        function undoEntry(slotId, index) { if (confirm(`Remove this scan locally?`)) { let logs = getStorage('scanningLogs_slot_' + slotId, []); logs.splice(index, 1); setStorage('scanningLogs_slot_' + slotId, logs); updateLiveLog(); } }
-
-        window.addEventListener('storage', function(e) { if (e.key && e.key.startsWith('scanningLogs_')) updateLiveLog(); if (e.key === 'masterData') checkDatabase(); if (e.key === 'itsFixedDays') renderDays(); });
-
         function downloadScanning() {
             const slotId = document.getElementById('exportEventSelect').value; if(!slotId) return alert("No day selected.");
-            const daysData = getStorage('itsFixedDays', {}); const dayName = daysData[slotId].name;
-            const logs = getStorage('scanningLogs_slot_' + slotId, []); if (logs.length === 0) return alert(`No scanning data to download.`);
+            const dayName = globalDays[slotId].name;
+            if (globalLogs.length === 0) return alert(`No scanning data in cloud.`);
+            
             let csvContent = "data:text/csv;charset=utf-8,Session,Time,ITS number,Name,Scanned By\n";
-            logs.forEach(row => { let volName = row.volunteer || 'Unknown'; let safeName = dayName.replace(/,/g, ''); let safePersonName = row.name.replace(/,/g, ''); csvContent += `${safeName},${row.time},${row.id},${safePersonName},${volName}\n`; });
-            const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `ITS_Log_Slot${slotId}_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            globalLogs.forEach(row => { let volName = row.volunteer || 'Unknown'; let safeName = dayName.replace(/,/g, ''); let safePersonName = row.name.replace(/,/g, ''); csvContent += `${safeName},${row.time},${row.id},${safePersonName},${volName}\n`; });
+            const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `Cloud_Export_Slot${slotId}_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
-
-        function clearSystem() { if(confirm("DANGER: Wipe all local browser memory for this system?")) { localStorage.clear(); alert("System wiped."); location.reload(); } }
     </script>
 </body>
 </html>
