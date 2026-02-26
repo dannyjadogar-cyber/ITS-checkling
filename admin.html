@@ -2,35 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Dashboard - ITS Portal</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         :root { --primary-gold: #C19A6B; --primary-hover: #A8855F; --glass-bg: rgba(20, 20, 20, 0.75); --glass-border: rgba(255, 255, 255, 0.15); --text-light: #F8F9FA; --card-inner: rgba(0, 0, 0, 0.4); }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: url('image_062684.jpg'); background-color: #111; background-size: cover; background-position: center; background-attachment: fixed; }
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%); z-index: -1; }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: none; }
+        
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: none; box-sizing: border-box;}
         #loginCard { display: block; max-width: 400px; text-align: center; }
+        
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; } ::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
+        
         .header-title { font-family: 'Cinzel', serif; font-size: 28px; letter-spacing: 2px; text-align: center; margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px; }
         .section-card { background: var(--card-inner); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; margin-bottom: 25px; }
         .section-card h3 { margin-top: 0; font-family: 'Cinzel', serif; color: var(--primary-gold); letter-spacing: 1px; font-size: 20px;}
+        
         input, select { width: 100%; padding: 12px 15px; font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background-color: rgba(255, 255, 255, 0.05); color: white; box-sizing: border-box; transition: 0.3s; }
         input:focus, select:focus { outline: none; border-color: var(--primary-gold); background-color: rgba(255,255,255,0.1); }
+        
         .flex-row { display: flex; gap: 10px; align-items: center; } .flex-row input, .flex-row select { margin-bottom: 0; }
         button { padding: 12px 20px; font-size: 14px; font-family: 'Poppins', sans-serif; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        
         .btn-primary { background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover)); width: 100%; } .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
         .btn-action { background: #0056b3; white-space: nowrap; } .btn-action:hover { background: #004494; }
         .btn-success { background: #28a745; white-space: nowrap; } .btn-success:hover { background: #218838; }
         .btn-danger { background: #dc3545; } .btn-danger:hover { background: #c82333; }
         .btn-small { padding: 6px 12px; font-size: 12px; border-radius: 4px; box-shadow: none; }
+        
         .item-list { list-style: none; padding: 0; margin: 15px 0 0 0; }
-        .item-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .day-row { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
-        .table-container { max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-top: 15px; background: rgba(0,0,0,0.2);}
-        table { width: 100%; border-collapse: collapse; font-size: 14px; } th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); } th { background-color: rgba(0,0,0,0.8); position: sticky; top: 0; color: var(--primary-gold); font-family: 'Cinzel', serif;}
+        .item-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; flex-wrap: wrap; gap: 10px;}
+        .day-row { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
+        
+        .table-container { max-height: 300px; overflow-x: auto; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-top: 15px; background: rgba(0,0,0,0.2);}
+        table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 500px; } th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); } th { background-color: rgba(0,0,0,0.8); position: sticky; top: 0; color: var(--primary-gold); font-family: 'Cinzel', serif;}
+        
+        /* --- MOBILE RESPONSIVE CSS --- */
+        @media (max-width: 650px) {
+            .glass-card { padding: 20px 15px; border-radius: 15px; width: 95%; max-height: 95vh;}
+            .header-title { font-size: 22px; }
+            .section-card { padding: 15px; }
+            .section-card h3 { font-size: 16px; }
+            
+            /* Stack flex rows vertically on mobile */
+            .flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .flex-row input, .flex-row select, .flex-row button { width: 100% !important; margin-bottom: 0; }
+            
+            /* Adjust Day Row for mobile */
+            .day-row strong { width: 100%; display: block; margin-bottom: 5px; color: #fff;}
+            .day-row input { width: 100% !important; }
+            .day-row select { width: 100% !important; }
+        }
     </style>
 </head>
 <body>
@@ -54,14 +81,16 @@
         <div class="section-card">
             <h3>2. Manage 10 Days (Live Sync)</h3>
             <p style="font-size: 13px; color: #ccc;">Changes here instantly sync to all volunteer phones.</p>
-            <div id="daysContainer"></div>
+            <div id="daysContainer">
+                <span style="color: #ffc107;">Connecting to Firebase...</span>
+            </div>
         </div>
 
         <div class="section-card">
             <h3>3. Manage Volunteers (Live Sync)</h3>
             <div class="flex-row">
-                <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1; margin-bottom: 0;">
-                <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1; margin-bottom: 0;" onkeypress="if(event.key==='Enter') addVolunteer()">
+                <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1;">
+                <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;" onkeypress="if(event.key==='Enter') addVolunteer()">
                 <button class="btn-action" onclick="addVolunteer()">Add</button>
             </div>
             <ul class="item-list" id="volList"></ul>
@@ -71,7 +100,7 @@
             <h3>4. Live Global Monitor</h3>
             <p style="font-size: 13px; color: #ccc;">Watch scans from ALL doors happen in real-time.</p>
             <div class="flex-row" style="margin-bottom: 15px;">
-                <select id="adminViewEvent" style="flex: 1; margin: 0;" onchange="loadLogsForView()"></select>
+                <select id="adminViewEvent" style="flex: 1;" onchange="loadLogsForView()"></select>
             </div>
             <div id="logStatus" style="font-weight: 600; font-size: 14px; color: var(--primary-gold);">Total Scanned: 0</div>
             <div class="table-container">
@@ -86,7 +115,7 @@
             <h3>5. Download Global Reports</h3>
             <p style="font-size: 13px; color: #ccc;">Export the combined cloud database for a session.</p>
             <div class="flex-row">
-                <select id="exportEventSelect" style="flex: 1; margin: 0;"></select>
+                <select id="exportEventSelect" style="flex: 1;"></select>
                 <button class="btn-success" onclick="downloadScanning()">📥 Export Global CSV</button>
             </div>
         </div>
@@ -97,21 +126,20 @@
 
         // 🔴 🔴 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 🔴 🔴
         const firebaseConfig = {
-        apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
-        authDomain: "its-scanning-f8f5a.firebaseapp.com",
-        databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
-        projectId: "its-scanning-f8f5a",
-        storageBucket: "its-scanning-f8f5a.firebasestorage.app",
-        messagingSenderId: "590874259733",
-        appId: "1:590874259733:web:314d6a1fadb3780429b91c"
+  apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
+  authDomain: "its-scanning-f8f5a.firebaseapp.com",
+  databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
+  projectId: "its-scanning-f8f5a",
+  storageBucket: "its-scanning-f8f5a.firebasestorage.app",
+  messagingSenderId: "590874259733",
+  appId: "1:590874259733:web:314d6a1fadb3780429b91c"
         };
         // --------------------------------------------------
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let globalDays = {};
-        let globalLogs = [];
+        let globalDays = {}; let globalLogs = [];
 
         function loginAdmin() {
             if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
@@ -122,14 +150,12 @@
         }
 
         async function initAdmin() {
-            // Load ITS.csv from GitHub
             try {
                 const response = await fetch('ITS.csv');
                 if (response.ok) document.getElementById('dbStatus').innerHTML = "<span style='color: #28a745;'>✔️ Connected to GitHub ITS.csv</span>";
-                else document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>❌ Could not find ITS.csv on GitHub.</span>";
+                else document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>❌ Could not find ITS.csv on GitHub. Check filename.</span>";
             } catch (e) { document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>❌ Offline / Fetch Error.</span>"; }
 
-            // Initialize Cloud Listeners
             db.ref('config/days').on('value', snap => {
                 globalDays = snap.val();
                 if (!globalDays) {
@@ -137,8 +163,9 @@
                     for(let i=1; i<=10; i++) globalDays[i] = { name: `Day ${i}`, status: i === 1 ? 'active' : 'upcoming' };
                     db.ref('config/days').set(globalDays);
                 }
-                
                 renderDays();
+            }, (error) => {
+                document.getElementById('daysContainer').innerHTML = `<div style="background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; padding: 15px; border-radius: 8px;"><h4 style="color:#ff6b6b; margin-top:0;">❌ Firebase Connection Blocked</h4><p style="font-size:13px;">Error: ${error.message}</p><p style="font-size:13px; margin-bottom:0;">Please go to your Firebase Console -> Realtime Database -> Rules, and set both <b>.read</b> and <b>.write</b> to <b>true</b>.</p></div>`;
             });
 
             db.ref('config/volunteers').on('value', snap => {
@@ -154,15 +181,14 @@
             container.innerHTML = ''; viewSelect.innerHTML = ''; exportSelect.innerHTML = '';
 
             for(let i=1; i<=10; i++) {
-                let day = globalDays[i];
-                if(!day) continue;
+                let day = globalDays[i]; if(!day) continue;
                 let bg = day.status === 'active' ? 'rgba(40, 167, 69, 0.2)' : (day.status === 'done' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)');
                 
                 container.innerHTML += `
                     <div class="day-row" style="background: ${bg};">
                         <strong style="width: 50px; color: var(--primary-gold);">Slot ${i}</strong>
-                        <input type="text" value="${day.name}" onchange="updateDayName(${i}, this.value)" style="flex:1; margin:0;">
-                        <select onchange="updateDayStatus(${i}, this.value)" style="width:130px; margin:0; background: rgba(0,0,0,0.5);">
+                        <input type="text" value="${day.name}" onchange="updateDayName(${i}, this.value)" style="flex:1;">
+                        <select onchange="updateDayStatus(${i}, this.value)" style="width:130px; background: rgba(0,0,0,0.5);">
                             <option value="upcoming" ${day.status==='upcoming'?'selected':''}>Upcoming</option>
                             <option value="active" ${day.status==='active'?'selected':''}>Active</option>
                             <option value="done" ${day.status==='done'?'selected':''}>Done</option>
@@ -190,7 +216,7 @@
         function addVolunteer() {
             const name = document.getElementById('volName').value.trim(); const pass = document.getElementById('volPass').value.trim();
             if(!name || !pass) return alert("Enter name and password.");
-            db.ref(`config/volunteers/${pass}`).set(name);
+            db.ref(`config/volunteers/${pass}`).set(name).catch(e => alert("Database Error: " + e.message));
             document.getElementById('volName').value = ''; document.getElementById('volPass').value = '';
         }
 
@@ -201,22 +227,17 @@
         function loadLogsForView() {
             const slotId = document.getElementById('adminViewEvent').value;
             if (!slotId) return;
-
-            // Turn off old listener to prevent mixed data
             if (currentLogListener) db.ref(currentLogListener).off();
             currentLogListener = `logs/slot_${slotId}`;
 
-            // Listen to the cloud database live
             db.ref(currentLogListener).on('value', snap => {
                 const logsData = snap.val() || {};
-                // Convert Firebase object to array so we can map it
                 globalLogs = Object.keys(logsData).map(key => ({...logsData[key], fbKey: key}));
                 
                 const tbody = document.getElementById('adminLogBody');
                 document.getElementById('logStatus').innerHTML = `Total Scanned Globally: <strong style="color: white; font-size: 18px;">${globalLogs.length}</strong>`;
                 tbody.innerHTML = '';
                 
-                // Show newest at the top
                 for (let i = globalLogs.length - 1; i >= 0; i--) {
                     const r = globalLogs[i]; 
                     let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : "";
@@ -225,11 +246,7 @@
             });
         }
 
-        function undoCloudEntry(slotId, fbKey) {
-            if (confirm(`Delete this scan from the cloud? It will instantly update on all phones.`)) {
-                db.ref(`logs/slot_${slotId}/${fbKey}`).remove();
-            }
-        }
+        function undoCloudEntry(slotId, fbKey) { if (confirm(`Delete this scan from the cloud?`)) { db.ref(`logs/slot_${slotId}/${fbKey}`).remove(); } }
 
         function downloadScanning() {
             const slotId = document.getElementById('exportEventSelect').value; if(!slotId) return alert("No day selected.");
@@ -243,4 +260,3 @@
     </script>
 </body>
 </html>
-
