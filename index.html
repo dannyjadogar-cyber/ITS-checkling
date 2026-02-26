@@ -3,53 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITS Scanning Portal</title>
-    
+    <title>ITS Cloud Scanner</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --primary-gold: #C19A6B; --primary-hover: #A8855F; --glass-bg: rgba(20, 20, 20, 0.65); --glass-border: rgba(255, 255, 255, 0.15); --text-light: #F8F9FA; --success-glow: rgba(40, 167, 69, 0.6); --error-glow: rgba(220, 53, 69, 0.6); --warning-glow: rgba(255, 193, 7, 0.6); }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: url('image_062684.jpg'); background-color: #111; background-size: cover; background-position: center; background-attachment: fixed; }
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%); z-index: -1; }
         .main-container { width: 100%; display: flex; justify-content: center; padding: 20px; box-sizing: border-box;}
-        
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); padding: 40px 50px; border-radius: 20px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: box-shadow 0.4s ease; box-sizing: border-box;}
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); padding: 40px 50px; border-radius: 20px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: box-shadow 0.4s ease; box-sizing: border-box;}
         .glow-green { box-shadow: 0 0 40px var(--success-glow), inset 0 0 20px var(--success-glow) !important; border-color: #28a745 !important; } .glow-red { box-shadow: 0 0 40px var(--error-glow), inset 0 0 20px var(--error-glow) !important; border-color: #dc3545 !important; } .glow-yellow { box-shadow: 0 0 40px var(--warning-glow), inset 0 0 20px var(--warning-glow) !important; border-color: #ffc107 !important; }
-        
         .header-title { font-family: 'Cinzel', serif; font-size: 24px; letter-spacing: 2px; text-align: center; margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px; }
-        
         input[type="text"], input[type="password"], select { width: 100%; padding: 15px 20px; font-size: 16px; font-family: 'Poppins', sans-serif; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background-color: rgba(255, 255, 255, 0.1); color: white; box-sizing: border-box; transition: 0.3s; }
         input::placeholder { color: rgba(255,255,255,0.5); } input:focus, select:focus { outline: none; background-color: rgba(255, 255, 255, 0.15); border-color: var(--primary-gold); box-shadow: 0 0 15px rgba(193, 154, 107, 0.3); } input:disabled { background-color: rgba(0,0,0,0.2); cursor: not-allowed; color: rgba(255,255,255,0.3);}
         select { appearance: none; cursor: pointer; } select option { background-color: #222; color: white; }
         #attendeeId { font-size: 24px; letter-spacing: 4px; text-align: center; font-weight: 600; border-color: var(--primary-gold); }
-        
         .btn-primary { width: 100%; padding: 16px; font-size: 16px; font-family: 'Poppins', sans-serif; color: white; background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover)); border: none; border-radius: 10px; cursor: pointer; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.3); margin-bottom: 20px; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.4); } .btn-primary:active { transform: translateY(1px); } .btn-primary:disabled { background: #555; transform: none; box-shadow: none; cursor: not-allowed; color: #888;}
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.4); } .btn-primary:disabled { background: #555; transform: none; box-shadow: none; cursor: not-allowed; color: #888;}
         .btn-undo { background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.5); color: #ff8888; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%; margin-bottom: 20px; display: none; transition: 0.2s; } .btn-undo:hover { background: rgba(220, 53, 69, 0.4); color: white; }
-        
         #scanResult { font-size: 18px; text-align: center; min-height: 70px; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px dashed rgba(255,255,255,0.2); display: flex; flex-direction: column; justify-content: center; }
         .result-name { font-size: 24px; font-weight: 600; margin-top: 5px; color: white;}
-        
         .search-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-bottom: 10px; } .search-container label { display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
         .search-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; } .search-item:hover { background: rgba(255,255,255,0.15); border-color: var(--primary-gold); }
-        
         .stats-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; } .stat-box { text-align: left; } .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); } .stat-value { font-size: 16px; color: var(--primary-gold); font-weight: 600; } .stat-large { font-size: 28px; color: white; line-height: 1; margin-top: 5px;}
-        
         #scannerView { display: none; }
+        #networkStatus { font-size: 12px; color: #ffc107; text-align: center; margin-bottom: 15px; }
     </style>
 </head>
 <body>
-
     <div class="bg-overlay"></div>
-
     <div class="main-container">
         <div class="glass-card" id="mainCard">
             <h2 class="header-title">Idaratut Ta'reef Al Shakhsi</h2>
 
             <div id="loginView">
-                <div style="text-align: center; margin-bottom: 25px; color: rgba(255,255,255,0.7); font-size: 14px;">Volunteer Access Portal</div>
-                <div id="dbStatus" style="font-size: 12px; color: #ffc107; text-align: center; margin-bottom: 10px;">Fetching Master Database...</div>
-                <input type="password" id="volPassword" placeholder="Enter Unique Password" onkeypress="if(event.key==='Enter') loginVolunteer()">
-                <button class="btn-primary" onclick="loginVolunteer()">Secure Login</button>
+                <div style="text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.7); font-size: 14px;">Volunteer Access Portal</div>
+                <div id="networkStatus">🔄 Connecting to Cloud Server...</div>
+                <input type="password" id="volPassword" placeholder="Enter Unique Password" onkeypress="if(event.key==='Enter') loginVolunteer()" disabled>
+                <button class="btn-primary" id="loginBtn" onclick="loginVolunteer()" disabled>Secure Login</button>
             </div>
 
             <div id="scannerView">
@@ -67,74 +59,100 @@
 
                 <div class="stats-container">
                     <div class="stat-box"><div class="stat-label">Volunteer</div><div class="stat-value" id="volNameDisplay">-</div></div>
-                    <div class="stat-box" style="text-align: right;"><div class="stat-label">Total Inside</div><div class="stat-large" id="totalCount">0</div></div>
+                    <div class="stat-box" style="text-align: right;"><div class="stat-label">Global Total Inside</div><div class="stat-large" id="totalCount">0</div></div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
-        let masterData = {}; let checkedInList = []; let currentSlotId = ""; let currentDayName = ""; let currentVolunteerName = "";
+        // 🔴 🔴 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 🔴 🔴
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "123456",
+            appId: "1:12345:web:abcd"
+        };
+        // --------------------------------------------------
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let masterData = {}; let globalDays = {}; let cloudVols = {}; let cloudLogs = [];
+        let currentSlotId = ""; let currentDayName = ""; let currentVolunteerName = ""; let lastPushedKey = null;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) { if (audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.1); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3); } }
         function flashPanel(colorClass) { const card = document.getElementById('mainCard'); card.classList.add(colorClass); setTimeout(() => { card.classList.remove(colorClass); }, 600); }
-        function safeParse(key, fallback) { try { let data = localStorage.getItem(key); return data ? JSON.parse(data) : fallback; } catch (e) { return fallback; } }
 
-        // AUTO-FETCH ITS.csv ON LOAD
         window.onload = async function() {
+            // 1. Get Master Data from GitHub
             try {
                 const response = await fetch('ITS.csv');
                 if (response.ok) {
                     const text = await response.text();
                     const rows = text.split('\n');
-                    let parsedData = {};
                     for (let i = 1; i < rows.length; i++) {
                         const cols = rows[i].split(','); 
-                        if (cols.length >= 2 && cols[0].trim() !== "") parsedData[cols[0].trim()] = { name: cols[1].trim() };
+                        if (cols.length >= 2 && cols[0].trim() !== "") masterData[cols[0].trim()] = { name: cols[1].trim() };
                     }
-                    localStorage.setItem('masterData', JSON.stringify(parsedData));
-                    document.getElementById('dbStatus').innerHTML = "<span style='color: #28a745;'>Database Sync Complete ✔️</span>";
+                    document.getElementById('networkStatus').innerHTML = "<span style='color: #28a745;'>✔️ Cloud Connected & Ready</span>";
+                    document.getElementById('volPassword').disabled = false;
+                    document.getElementById('loginBtn').disabled = false;
                 } else {
-                    document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>Failed to find ITS.csv on server.</span>";
+                    document.getElementById('networkStatus').innerHTML = "<span style='color: #dc3545;'>❌ Error: ITS.csv not found on server.</span>";
                 }
-            } catch (e) {
-                document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>Offline Mode. Using local database.</span>";
-            }
+            } catch (e) { document.getElementById('networkStatus').innerHTML = "<span style='color: #dc3545;'>❌ Error connecting to server.</span>"; }
+
+            // 2. Listen to configuration
+            db.ref('config/days').on('value', snap => { globalDays = snap.val() || {}; if(currentVolunteerName) updateDropdown(); });
+            db.ref('config/volunteers').on('value', snap => { cloudVols = snap.val() || {}; });
         };
 
         function loginVolunteer() {
             const pass = document.getElementById('volPassword').value.trim();
-            const vols = safeParse('volunteerData', {});
-            if(vols[pass]) {
-                currentVolunteerName = vols[pass];
+            if(cloudVols[pass]) {
+                currentVolunteerName = cloudVols[pass];
                 document.getElementById('loginView').style.display = 'none';
                 document.getElementById('scannerView').style.display = 'block';
                 document.getElementById('volNameDisplay').innerText = currentVolunteerName;
-                initScanner();
-            } else { alert("❌ Invalid password. Did the Admin set up your account on this device?"); document.getElementById('volPassword').value = ''; }
+                updateDropdown();
+            } else { alert("❌ Invalid password. Ask Admin to add you."); document.getElementById('volPassword').value = ''; }
         }
-
-        function initScanner() {
-            masterData = safeParse('masterData', {});
-            if (Object.keys(masterData).length === 0) document.getElementById('scanResult').innerHTML = "<span style='color:#dc3545;'>⚠️ Error: No Database Loaded.</span>";
-            
+const firebaseConfig = {
+  apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
+  authDomain: "its-scanning-f8f5a.firebaseapp.com",
+  databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
+  projectId: "its-scanning-f8f5a",
+  storageBucket: "its-scanning-f8f5a.firebasestorage.app",
+  messagingSenderId: "590874259733",
+  appId: "1:590874259733:web:314d6a1fadb3780429b91c"
+};
+        function updateDropdown() {
             const dropdown = document.getElementById('volunteerEventSelect');
-            const daysData = safeParse('itsFixedDays', {});
-            
             dropdown.innerHTML = '<option value="">-- Select Active Session --</option>';
             let activeFound = false;
-            
             for(let i=1; i<=10; i++) {
-                let day = daysData[i];
+                let day = globalDays[i];
                 if(day && day.status === 'active') {
                     dropdown.innerHTML += `<option value="${i}" data-name="${day.name}">${day.name}</option>`;
                     activeFound = true;
                 }
             }
-            if (!activeFound) dropdown.innerHTML = '<option value="">-- No Active Sessions Set by Admin --</option>';
+            if (!activeFound) dropdown.innerHTML = '<option value="">-- No Active Sessions --</option>';
+            
+            // If current selection is no longer active, reset it
+            if(currentSlotId && (!globalDays[currentSlotId] || globalDays[currentSlotId].status !== 'active')) {
+                dropdown.value = ""; switchEvent();
+            } else if (currentSlotId) {
+                dropdown.value = currentSlotId;
+            }
         }
+
+        let currentLogListener = null;
 
         function switchEvent() {
             const selectEl = document.getElementById('volunteerEventSelect');
@@ -148,26 +166,25 @@
             
             if (state) {
                 document.getElementById('scanResult').innerHTML = "<span style='color: rgba(255,255,255,0.5);'>Awaiting session selection...</span>";
-                document.getElementById('totalCount').innerText = "0"; 
-                document.getElementById('undoBtn').style.display = 'none';
+                document.getElementById('totalCount').innerText = "0"; document.getElementById('undoBtn').style.display = 'none';
+                if (currentLogListener) db.ref(currentLogListener).off();
             } else {
                 document.getElementById('scanResult').innerHTML = `<span style='color: var(--primary-gold);'>Ready for "${currentDayName}" scans...</span>`;
-                checkedInList = safeParse('scanningLogs_slot_' + currentSlotId, []);
-                document.getElementById('totalCount').innerText = checkedInList.length; 
-                checkUndoVisibility(); 
                 document.getElementById('attendeeId').focus();
+                lastPushedKey = null; // Reset undo key for new session
+
+                // Turn off old listener
+                if (currentLogListener) db.ref(currentLogListener).off();
+                currentLogListener = `logs/slot_${currentSlotId}`;
+
+                // Turn on new LIVE listener
+                db.ref(currentLogListener).on('value', snap => {
+                    const logsObj = snap.val() || {};
+                    cloudLogs = Object.keys(logsObj).map(key => ({...logsObj[key], fbKey: key}));
+                    document.getElementById('totalCount').innerText = cloudLogs.length; 
+                });
             }
         }
-
-        function checkUndoVisibility() { document.getElementById('undoBtn').style.display = (currentSlotId !== "" && checkedInList.length > 0) ? 'block' : 'none'; }
-
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'scanningLogs_slot_' + currentSlotId) {
-                checkedInList = safeParse('scanningLogs_slot_' + currentSlotId, []);
-                document.getElementById('totalCount').innerText = checkedInList.length; checkUndoVisibility();
-            }
-            if (e.key === 'itsFixedDays') { let tempId = currentSlotId; initScanner(); document.getElementById('volunteerEventSelect').value = tempId; }
-        });
 
         function handleKeyPress(event) { if (event.key === "Enter") verifyAndLog(); }
 
@@ -190,22 +207,25 @@
         }
 
         function undoLastScan() {
-            if (checkedInList.length === 0 || currentSlotId === "") return;
-            let removedPerson = checkedInList.pop();
-            localStorage.setItem('scanningLogs_slot_' + currentSlotId, JSON.stringify(checkedInList));
-            document.getElementById('totalCount').innerText = checkedInList.length;
-            document.getElementById('scanResult').innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Scan Removed</span><span class='result-name' style='color:#aaa; text-decoration: line-through;'>${removedPerson.name}</span>`;
-            checkUndoVisibility(); document.getElementById('attendeeId').focus();
+            if (!lastPushedKey || currentSlotId === "") return alert("You can only undo your most recent scan.");
+            
+            db.ref(`logs/slot_${currentSlotId}/${lastPushedKey}`).remove().then(() => {
+                document.getElementById('scanResult').innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Scan Removed</span><span class='result-name' style='color:#aaa;'>Previous scan deleted</span>`;
+                lastPushedKey = null; // Can only undo once
+                document.getElementById('undoBtn').style.display = 'none';
+                document.getElementById('attendeeId').focus();
+            });
         }
 
         function verifyAndLog() {
             if (currentSlotId === "") return alert("You must select a Session first.");
             const inputField = document.getElementById('attendeeId'); const inputId = inputField.value.trim(); const resultDiv = document.getElementById('scanResult');
 
-            if (Object.keys(masterData).length === 0) return alert("Local Database empty. Ask Admin to load data.");
+            if (Object.keys(masterData).length === 0) return alert("Database missing.");
             if (inputId.length !== 8) { playSound('error'); flashPanel('glow-red'); resultDiv.innerHTML = `<span style='color:#dc3545; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Error</span><span class='result-name' style='color:#dc3545;'>Invalid ITS Number</span>`; inputField.value = ''; return; }
 
-            const alreadyCheckedIn = checkedInList.some(record => record.id === inputId);
+            // Check if ANY volunteer has already scanned this person globally
+            const alreadyCheckedIn = cloudLogs.some(record => record.id === inputId);
 
             if (alreadyCheckedIn) {
                 playSound('error'); flashPanel('glow-yellow');
@@ -215,17 +235,18 @@
                 playSound('success'); flashPanel('glow-green');
                 const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
                 
-                if (masterData[inputId]) {
-                    const person = masterData[inputId];
-                    resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Access Granted</span><span class='result-name'>${person.name}</span>`;
-                    checkedInList.push({ time: timeNow, id: inputId, name: person.name, volunteer: currentVolunteerName });
-                } else {
-                    resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Guest Approved</span><span class='result-name'>Mehman</span>`;
-                    checkedInList.push({ time: timeNow, id: inputId, name: "Mehman", volunteer: currentVolunteerName });
-                }
-
-                localStorage.setItem('scanningLogs_slot_' + currentSlotId, JSON.stringify(checkedInList));
-                document.getElementById('totalCount').innerText = checkedInList.length; checkUndoVisibility();
+                let pName = masterData[inputId] ? masterData[inputId].name : "Mehman";
+                let statusMsg = masterData[inputId] ? "Access Granted" : "Guest Approved";
+                
+                resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>${statusMsg}</span><span class='result-name'>${pName}</span>`;
+                
+                // Push to Firebase instantly
+                const newRef = db.ref(`logs/slot_${currentSlotId}`).push();
+                newRef.set({ time: timeNow, id: inputId, name: pName, volunteer: currentVolunteerName });
+                
+                // Save key to allow undo
+                lastPushedKey = newRef.key;
+                document.getElementById('undoBtn').style.display = 'block';
             }
             
             inputField.value = ''; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; inputField.focus(); 
