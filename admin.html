@@ -15,7 +15,7 @@
         body { 
             font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light);
             min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background-image: url('image_062684.jpg'); /* YOUR CUSTOM BACKGROUND */
+            background-image: url('image_062684.jpg'); 
             background-color: #111; background-size: cover; background-position: center; background-attachment: fixed;
         }
 
@@ -38,7 +38,7 @@
 
         input[type="text"], input[type="password"], input[type="file"], select { width: 100%; padding: 12px 15px; font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background-color: rgba(255, 255, 255, 0.05); color: white; box-sizing: border-box; transition: 0.3s; }
         input:focus, select:focus { outline: none; border-color: var(--primary-gold); background-color: rgba(255,255,255,0.1); }
-        .flex-row { display: flex; gap: 10px; align-items: flex-start; } .flex-row input { margin-bottom: 0; }
+        .flex-row { display: flex; gap: 10px; align-items: center; } .flex-row input, .flex-row select { margin-bottom: 0; }
 
         button { padding: 12px 20px; font-size: 14px; font-family: 'Poppins', sans-serif; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .btn-primary { background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover)); width: 100%; } .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
@@ -49,10 +49,11 @@
 
         .item-list { list-style: none; padding: 0; margin: 15px 0 0 0; }
         .item-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        
+        .day-row { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+
         .table-container { max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-top: 15px; background: rgba(0,0,0,0.2);}
         table { width: 100%; border-collapse: collapse; font-size: 14px; } th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); } th { background-color: rgba(0,0,0,0.8); position: sticky; top: 0; color: var(--primary-gold); font-family: 'Cinzel', serif;}
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .badge-active { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745;} .badge-upcoming { background: rgba(255, 255, 255, 0.1); color: #ccc; border: 1px solid #666;} .badge-done { background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid #dc3545;}
     </style>
 </head>
 <body>
@@ -69,35 +70,32 @@
 
         <div class="section-card">
             <h3>1. Master Database</h3>
-            <p>Upload your master .csv file. (Column 1 = ITS number, Column 2 = Name).</p>
+            <p>Upload your master .csv file. (Column A = ITS number, Column B = Name).</p>
             <input type="file" id="csvFileInput" accept=".csv">
             <div id="dbStatus" style="font-weight: 600; font-size: 14px; margin-top: 10px;">Checking database...</div>
         </div>
 
         <div class="section-card">
-            <h3>2. Custom Event Sessions</h3>
-            <p>Create scanning sessions. They are automatically set to <strong>Active</strong> for volunteers.</p>
-            <div class="flex-row">
-                <input type="text" id="newEventName" placeholder="e.g. Ashara Day 1" style="flex: 1;" onkeypress="if(event.key==='Enter') createEvent()">
-                <button class="btn-action" onclick="createEvent()">+ Add Event</button>
-            </div>
-            <ul class="item-list" id="eventList"></ul>
+            <h3>2. Manage 10 Days</h3>
+            <p>Rename your 10 days and set them to Active for the volunteers.</p>
+            <div id="daysContainer">
+                </div>
         </div>
 
         <div class="section-card">
             <h3>3. Manage Volunteers</h3>
             <p>Create accounts for volunteers so their names link to the scanning logs.</p>
             <div class="flex-row">
-                <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1;">
-                <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;" onkeypress="if(event.key==='Enter') addVolunteer()">
-                <button class="btn-action" onclick="addVolunteer()">Add Volunteer</button>
+                <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1; margin-bottom: 0;">
+                <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1; margin-bottom: 0;" onkeypress="if(event.key==='Enter') addVolunteer()">
+                <button class="btn-action" onclick="addVolunteer()">Add</button>
             </div>
             <ul class="item-list" id="volList"></ul>
         </div>
 
         <div class="section-card">
             <h3>4. Live Scanning Monitor</h3>
-            <p>View real-time scans from the volunteers and correct mistakes.</p>
+            <p>View real-time scans from the volunteers.</p>
             <div class="flex-row" style="margin-bottom: 15px;">
                 <select id="adminViewEvent" style="flex: 1; margin: 0;" onchange="updateLiveLog()"></select>
                 <button class="btn-action" onclick="updateLiveLog()">🔄 Refresh View</button>
@@ -113,7 +111,7 @@
 
         <div class="section-card">
             <h3>5. Download Reports</h3>
-            <p>Export the final scanning list for a specific event as a .csv file.</p>
+            <p>Export the final scanning list for a specific day as a .csv file.</p>
             <div class="flex-row">
                 <select id="exportEventSelect" style="flex: 1; margin: 0;"></select>
                 <button class="btn-success" onclick="downloadScanning()">📥 Export CSV</button>
@@ -129,13 +127,11 @@
     <script>
         const ADMIN_PASSWORD = "admin123"; 
 
-        // Safely parse local storage memory
-        function safeParse(key, fallback) {
-            try {
-                let data = localStorage.getItem(key);
-                return data ? JSON.parse(data) : fallback;
-            } catch (e) { return fallback; }
+        function getStorage(key, fallback) {
+            try { let data = localStorage.getItem(key); return data ? JSON.parse(data) : fallback; } 
+            catch (e) { return fallback; }
         }
+        function setStorage(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
         function loginAdmin() {
             if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
@@ -148,16 +144,24 @@
         }
 
         function initAdmin() {
-            let events = safeParse('itsEvents', []);
-            if (events.length === 0) {
-                events = [{ id: "evt_" + Date.now(), name: "Main Event - Day 1", status: "active" }];
-                localStorage.setItem('itsEvents', JSON.stringify(events));
+            // Initialize fixed 10 days if they don't exist
+            let daysData = getStorage('itsFixedDays', null);
+            if (!daysData) {
+                daysData = {};
+                for(let i=1; i<=10; i++) {
+                    daysData[i] = { name: `Day ${i}`, status: i === 1 ? 'active' : 'upcoming' };
+                }
+                setStorage('itsFixedDays', daysData);
             }
-            renderEvents(); renderVolunteers(); checkDatabase();
+            
+            renderDays(); 
+            renderVolunteers(); 
+            checkDatabase();
+            updateLiveLog();
         }
 
         function checkDatabase() {
-            const masterData = safeParse('masterData', {});
+            const masterData = getStorage('masterData', {});
             const dbCount = Object.keys(masterData).length;
             const statusDiv = document.getElementById('dbStatus');
             statusDiv.innerHTML = dbCount > 0 
@@ -175,151 +179,155 @@
                     const cols = rows[i].split(','); 
                     if (cols.length >= 2 && cols[0].trim() !== "") parsedData[cols[0].trim()] = { name: cols[1].trim() };
                 }
-                localStorage.setItem('masterData', JSON.stringify(parsedData));
+                setStorage('masterData', parsedData);
                 alert("CSV Data securely saved to local browser storage!");
                 checkDatabase(); document.getElementById('csvFileInput').value = '';
             };
             reader.readAsText(file);
         });
 
-        function renderEvents() {
-            const events = safeParse('itsEvents', []);
-            const list = document.getElementById('eventList');
+        // --- 10 FIXED DAYS LOGIC ---
+        function renderDays() {
+            const daysData = getStorage('itsFixedDays', {});
+            const container = document.getElementById('daysContainer');
             const viewSelect = document.getElementById('adminViewEvent');
             const exportSelect = document.getElementById('exportEventSelect');
             
-            list.innerHTML = ''; viewSelect.innerHTML = ''; exportSelect.innerHTML = '';
+            let currentView = viewSelect.value;
+            
+            container.innerHTML = ''; 
+            viewSelect.innerHTML = ''; 
+            exportSelect.innerHTML = '';
 
-            if (events.length === 0) {
-                list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No custom events created yet.</li>';
-                viewSelect.innerHTML = '<option value="">No Events</option>';
-                exportSelect.innerHTML = '<option value="">No Events</option>';
-                updateLiveLog(); return;
-            }
-
-            events.forEach(evt => {
-                let badgeClass = evt.status === 'active' ? 'badge-active' : (evt.status === 'upcoming' ? 'badge-upcoming' : 'badge-done');
-                list.innerHTML += `
-                    <li class="item-row">
-                        <div><span class="status-badge ${badgeClass}" style="margin-right: 10px;">${evt.status}</span><strong>${evt.name}</strong></div>
-                        <div class="flex-row">
-                            <select class="btn-small" style="margin:0; width: auto; background: rgba(0,0,0,0.5);" onchange="changeEventStatus('${evt.id}', this.value)">
-                                <option value="upcoming" ${evt.status==='upcoming'?'selected':''}>Upcoming</option>
-                                <option value="active" ${evt.status==='active'?'selected':''}>Active</option>
-                                <option value="done" ${evt.status==='done'?'selected':''}>Done</option>
-                            </select>
-                            <button class="btn-danger btn-small" onclick="deleteEvent('${evt.id}', '${evt.name.replace(/'/g, "\\'")}')">Delete</button>
-                        </div>
-                    </li>
+            for(let i=1; i<=10; i++) {
+                let day = daysData[i];
+                let bg = day.status === 'active' ? 'rgba(40, 167, 69, 0.2)' : (day.status === 'done' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)');
+                
+                container.innerHTML += `
+                    <div class="day-row" style="background: ${bg};">
+                        <strong style="width: 50px; color: var(--primary-gold);">Slot ${i}</strong>
+                        <input type="text" value="${day.name}" onchange="updateDayName(${i}, this.value)" style="flex:1; margin:0;" placeholder="Name this session...">
+                        <select onchange="updateDayStatus(${i}, this.value)" style="width:130px; margin:0; background: rgba(0,0,0,0.5);">
+                            <option value="upcoming" ${day.status==='upcoming'?'selected':''}>Upcoming</option>
+                            <option value="active" ${day.status==='active'?'selected':''}>Active</option>
+                            <option value="done" ${day.status==='done'?'selected':''}>Done</option>
+                        </select>
+                    </div>
                 `;
-                viewSelect.innerHTML += `<option value="${evt.id}">${evt.name}</option>`;
-                exportSelect.innerHTML += `<option value="${evt.id}">${evt.name}</option>`;
-            });
-            updateLiveLog();
-        }
 
-        function createEvent() {
-            const name = document.getElementById('newEventName').value.trim();
-            if (!name) return alert("Please enter an event name.");
-            let events = safeParse('itsEvents', []);
-            events.push({ id: "evt_" + Date.now(), name: name, status: "active" });
-            localStorage.setItem('itsEvents', JSON.stringify(events));
-            document.getElementById('newEventName').value = ''; renderEvents();
-        }
-
-        function changeEventStatus(id, newStatus) {
-            let events = safeParse('itsEvents', []);
-            let evt = events.find(e => e.id === id);
-            if(evt) { evt.status = newStatus; localStorage.setItem('itsEvents', JSON.stringify(events)); renderEvents(); }
-        }
-
-        function deleteEvent(id, name) {
-            if(confirm(`Delete "${name}" and ALL its local scanning logs?`)) {
-                let events = safeParse('itsEvents', []);
-                events = events.filter(e => e.id !== id);
-                localStorage.setItem('itsEvents', JSON.stringify(events));
-                localStorage.removeItem('scanningLogs_' + id); 
-                renderEvents();
+                viewSelect.innerHTML += `<option value="${i}">${day.name}</option>`;
+                exportSelect.innerHTML += `<option value="${i}">${day.name}</option>`;
             }
+
+            if (currentView) viewSelect.value = currentView;
         }
 
+        function updateDayName(slotNum, newName) {
+            let daysData = getStorage('itsFixedDays', {});
+            daysData[slotNum].name = newName || `Day ${slotNum}`; // Fallback if empty
+            setStorage('itsFixedDays', daysData);
+            renderDays(); // Refresh dropdowns
+        }
+
+        function updateDayStatus(slotNum, newStatus) {
+            let daysData = getStorage('itsFixedDays', {});
+            daysData[slotNum].status = newStatus;
+            setStorage('itsFixedDays', daysData);
+            renderDays(); // Refresh colors
+        }
+
+
+        // --- VOLUNTEERS ---
         function renderVolunteers() {
-            const vols = safeParse('volunteerData', {});
-            const list = document.getElementById('volList'); list.innerHTML = '';
-            if (Object.keys(vols).length === 0) {
-                list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>'; return;
-            }
+            const vols = getStorage('volunteerData', {});
+            const list = document.getElementById('volList'); 
+            list.innerHTML = '';
+            if (Object.keys(vols).length === 0) { list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>'; return; }
             for(let pwd in vols) {
-                list.innerHTML += `
-                    <li class="item-row">
-                        <span><strong>${vols[pwd]}</strong> <span style="color:var(--primary-gold); margin-left:10px;">(Pass: ${pwd})</span></span>
-                        <button class="btn-danger btn-small" onclick="deleteVolunteer('${pwd}')">Remove</button>
-                    </li>
-                `;
+                list.innerHTML += `<li class="item-row"><span><strong>${vols[pwd]}</strong> <span style="color:var(--primary-gold); margin-left:10px;">(Pass: ${pwd})</span></span>
+                    <button class="btn-danger btn-small" onclick="deleteVolunteer('${pwd}')">Remove</button></li>`;
             }
         }
 
         function addVolunteer() {
-            const name = document.getElementById('volName').value.trim(); const pass = document.getElementById('volPass').value.trim();
+            const nameInput = document.getElementById('volName'); const passInput = document.getElementById('volPass');
+            const name = nameInput.value.trim(); const pass = passInput.value.trim();
             if(!name || !pass) return alert("Enter name and password.");
-            let vols = safeParse('volunteerData', {});
+            let vols = getStorage('volunteerData', {});
             if(vols[pass]) return alert("Password in use.");
-            vols[pass] = name; localStorage.setItem('volunteerData', JSON.stringify(vols));
-            document.getElementById('volName').value = ''; document.getElementById('volPass').value = ''; renderVolunteers();
+            vols[pass] = name; setStorage('volunteerData', vols);
+            nameInput.value = ''; passInput.value = ''; renderVolunteers();
         }
 
         function deleteVolunteer(pwd) {
             if(confirm("Remove this volunteer?")) {
-                let vols = safeParse('volunteerData', {}); delete vols[pwd];
-                localStorage.setItem('volunteerData', JSON.stringify(vols)); renderVolunteers();
+                let vols = getStorage('volunteerData', {}); delete vols[pwd];
+                setStorage('volunteerData', vols); renderVolunteers();
             }
         }
 
+        // --- LIVE LOGS ---
         function updateLiveLog() {
-            const selectedEventId = document.getElementById('adminViewEvent').value;
+            const slotId = document.getElementById('adminViewEvent').value;
             const tbody = document.getElementById('adminLogBody');
-            if (!selectedEventId) { document.getElementById('logStatus').innerText = "No event selected."; tbody.innerHTML = ''; return; }
+            if (!slotId) return;
 
-            const logs = safeParse('scanningLogs_' + selectedEventId, []);
+            const logs = getStorage('scanningLogs_slot_' + slotId, []);
             document.getElementById('logStatus').innerHTML = `Total Scanned: <strong style="color: white; font-size: 18px;">${logs.length}</strong>`;
+            
             tbody.innerHTML = '';
             for (let i = logs.length - 1; i >= 0; i--) {
                 const r = logs[i];
-                let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : ""; 
-                tbody.innerHTML += `<tr style="${rowColor}"><td>${r.time}</td><td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td>
-                    <td><strong>${r.name}</strong></td><td style="color: rgba(255,255,255,0.5);">${r.volunteer || "Unknown"}</td>
-                    <td><button class="btn-danger btn-small" onclick="undoEntry('${selectedEventId}', ${i})">Undo</button></td></tr>`;
+                let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : "";
+                
+                tbody.innerHTML += `
+                    <tr style="${rowColor}">
+                        <td>${r.time}</td>
+                        <td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td>
+                        <td><strong>${r.name}</strong></td>
+                        <td style="color: rgba(255,255,255,0.5);">${r.volunteer || "Unknown"}</td>
+                        <td><button class="btn-danger btn-small" onclick="undoEntry('${slotId}', ${i})">Undo</button></td>
+                    </tr>
+                `;
             }
         }
 
-        function undoEntry(eventId, index) {
+        function undoEntry(slotId, index) {
             if (confirm(`Remove this scan locally?`)) {
-                let logs = safeParse('scanningLogs_' + eventId, []); logs.splice(index, 1);
-                localStorage.setItem('scanningLogs_' + eventId, JSON.stringify(logs)); updateLiveLog();
+                let logs = getStorage('scanningLogs_slot_' + slotId, []); 
+                logs.splice(index, 1);
+                setStorage('scanningLogs_slot_' + slotId, logs); 
+                updateLiveLog();
             }
         }
 
-        // Live syncing across tabs
+        // Auto-sync between tabs
         window.addEventListener('storage', function(e) {
             if (e.key && e.key.startsWith('scanningLogs_')) updateLiveLog();
             if (e.key === 'masterData') checkDatabase();
+            if (e.key === 'itsFixedDays') renderDays();
         });
 
+        // --- EXPORT ---
         function downloadScanning() {
-            const eventId = document.getElementById('exportEventSelect').value;
-            if(!eventId) return alert("No event selected.");
-            const events = safeParse('itsEvents', []); const eventObj = events.find(e => e.id === eventId);
-            const eventName = eventObj ? eventObj.name : "Unknown_Event";
-            const logs = safeParse('scanningLogs_' + eventId, []);
+            const slotId = document.getElementById('exportEventSelect').value;
+            if(!slotId) return alert("No day selected.");
+            
+            const daysData = getStorage('itsFixedDays', {});
+            const dayName = daysData[slotId].name;
+            
+            const logs = getStorage('scanningLogs_slot_' + slotId, []);
             if (logs.length === 0) return alert(`No scanning data to download.`);
             
-            let csvContent = "data:text/csv;charset=utf-8,Event,Time,ITS number,Name,Scanned By\n";
+            let csvContent = "data:text/csv;charset=utf-8,Session,Time,ITS number,Name,Scanned By\n";
             logs.forEach(row => { 
-                let volName = row.volunteer || 'Unknown'; let safeEventName = eventName.replace(/,/g, ''); let safePersonName = row.name.replace(/,/g, '');
-                csvContent += `${safeEventName},${row.time},${row.id},${safePersonName},${volName}\n`; 
+                let volName = row.volunteer || 'Unknown'; 
+                let safeName = dayName.replace(/,/g, ''); 
+                let safePersonName = row.name.replace(/,/g, '');
+                csvContent += `${safeName},${row.time},${row.id},${safePersonName},${volName}\n`; 
             });
             const link = document.createElement("a"); link.href = encodeURI(csvContent);
-            link.download = `ITS_Log_${eventName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+            link.download = `ITS_Log_Slot${slotId}_${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
