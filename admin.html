@@ -1,72 +1,414 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Dashboard - ITS Portal</title>
     <link rel="icon" type="image/png" href="logo.png">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+
     <style>
-        :root { --primary-gold: #C19A6B; --primary-hover: #A8855F; --glass-bg: rgba(20, 20, 20, 0.75); --glass-border: rgba(255, 255, 255, 0.15); --text-light: #F8F9FA; --card-inner: rgba(0, 0, 0, 0.4); }
-        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: url('image_062684.jpg'); background-color: #111; background-size: cover; background-position: center; background-attachment: fixed; }
-        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%); z-index: -1; }
-        
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 40px; display: none; box-sizing: border-box;}
-        #loginCard { display: block; max-width: 400px; text-align: center; }
-        
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; } ::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
-        
-        .header-title { font-family: 'Cinzel', serif; font-size: 28px; letter-spacing: 2px; text-align: center; margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px; }
-        .section-card { background: var(--card-inner); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; margin-bottom: 25px; }
-        .section-card h3 { margin-top: 0; font-family: 'Cinzel', serif; color: var(--primary-gold); letter-spacing: 1px; font-size: 20px;}
-        
-        input, select { width: 100%; padding: 12px 15px; font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background-color: rgba(255, 255, 255, 0.05); color: white; box-sizing: border-box; transition: 0.3s; }
-        input:focus, select:focus { outline: none; border-color: var(--primary-gold); background-color: rgba(255,255,255,0.1); }
-        
-        .flex-row { display: flex; gap: 10px; align-items: center; } .flex-row input, .flex-row select { margin-bottom: 0; }
-        button { padding: 12px 20px; font-size: 14px; font-family: 'Poppins', sans-serif; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        
-        .btn-primary { background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover)); width: 100%; } .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
-        .btn-action { background: #0056b3; white-space: nowrap; } .btn-action:hover { background: #004494; }
-        .btn-success { background: #28a745; white-space: nowrap; } .btn-success:hover { background: #218838; }
-        .btn-danger { background: #dc3545; } .btn-danger:hover { background: #c82333; }
-        .btn-small { padding: 6px 12px; font-size: 12px; border-radius: 4px; box-shadow: none; }
-        
-        .item-list { list-style: none; padding: 0; margin: 15px 0 0 0; }
-        .item-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; flex-wrap: wrap; gap: 10px;}
-        .day-row { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
-        
-        .table-container { max-height: 300px; overflow-x: auto; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-top: 15px; background: rgba(0,0,0,0.2);}
-        table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 500px; } th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); } th { background-color: rgba(0,0,0,0.8); position: sticky; top: 0; color: var(--primary-gold); font-family: 'Cinzel', serif;}
-        
+        :root {
+            --primary-gold: #D4AF37;
+            --primary-hover: #F3E5AB;
+            --glass-bg: rgba(14, 38, 24, 0.75);
+            --glass-border: rgba(212, 175, 55, 0.3);
+            --text-light: #E8F0EA;
+            --card-inner: rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #0b1c11;
+            background-image: linear-gradient(30deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(150deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(30deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(150deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(60deg, #0f2416 25%, transparent 25.5%, transparent 75%, #0f2416 75%, #0f2416), linear-gradient(60deg, #0f2416 25%, transparent 25.5%, transparent 75%, #0f2416 75%, #0f2416);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+            background-attachment: fixed;
+            animation: scrollBackground 60s linear infinite;
+        }
+
+        @keyframes scrollBackground {
+            100% {
+                background-position: -80px -140px, -80px -140px, -40px -70px, -40px -70px, -80px -140px, -40px -70px;
+            }
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(10, 30, 20, 0.6) 0%, rgba(2, 10, 5, 0.95) 100%);
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            display: none;
+            box-sizing: border-box;
+        }
+
+        .glass-card.active {
+            display: block;
+            animation: slideUpFade 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #loginCard {
+            display: block;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gold);
+            border-radius: 10px;
+        }
+
+        .header-title {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-align: center;
+            margin: 0 0 30px 0;
+            color: var(--primary-gold);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .section-card {
+            background: var(--card-inner);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            border-color: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-card h3 {
+            margin-top: 0;
+            font-family: 'Cinzel', serif;
+            color: var(--primary-gold);
+            letter-spacing: 1px;
+            font-size: 20px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .flex-row input,
+        .flex-row select {
+            margin-bottom: 0;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+
+        button:hover::after {
+            left: 150%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover));
+            width: 100%;
+            color: #0b1c11;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-action {
+            background: #0056b3;
+            white-space: nowrap;
+        }
+
+        .btn-action:hover {
+            background: #004494;
+            transform: scale(1.05);
+        }
+
+        .btn-success {
+            background: #28a745;
+            white-space: nowrap;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: scale(1.02);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            box-shadow: none;
+        }
+
+        .item-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0 0;
+        }
+
+        .item-row {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: all 0.3s ease;
+            animation: fadeInRow 0.4s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .item-row:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .day-row {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: all 0.3s;
+            animation: fadeInRow 0.5s ease forwards;
+            opacity: 0;
+            animation-delay: calc(var(--i) * 0.05s);
+        }
+
+        .day-row:hover {
+            border-color: var(--primary-gold);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes fadeInRow {
+            to {
+                opacity: 1;
+                transform: translate(0);
+            }
+        }
+
+        .table-container {
+            max-height: 300px;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 500px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            background-color: rgba(0, 0, 0, 0.8);
+            position: sticky;
+            top: 0;
+            color: var(--primary-gold);
+            font-family: 'Cinzel', serif;
+        }
+
         /* --- MOBILE RESPONSIVE CSS --- */
         @media (max-width: 650px) {
-            .glass-card { padding: 20px 15px; border-radius: 15px; width: 95%; max-height: 95vh;}
-            .header-title { font-size: 22px; }
-            .section-card { padding: 15px; }
-            .section-card h3 { font-size: 16px; }
-            
+            .glass-card {
+                padding: 20px 15px;
+                border-radius: 15px;
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .header-title {
+                font-size: 22px;
+            }
+
+            .section-card {
+                padding: 15px;
+            }
+
+            .section-card h3 {
+                font-size: 16px;
+            }
+
             /* Stack flex rows vertically on mobile */
-            .flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
-            .flex-row input, .flex-row select, .flex-row button { width: 100% !important; margin-bottom: 0; }
-            
+            .flex-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .flex-row input,
+            .flex-row select,
+            .flex-row button {
+                width: 100% !important;
+                margin-bottom: 0;
+            }
+
             /* Adjust Day Row for mobile */
-            .day-row strong { width: 100%; display: block; margin-bottom: 5px; color: #fff;}
-            .day-row input { width: 100% !important; }
-            .day-row select { width: 100% !important; }
+            .day-row strong {
+                width: 100%;
+                display: block;
+                margin-bottom: 5px;
+                color: #fff;
+            }
+
+            .day-row input {
+                width: 100% !important;
+            }
+
+            .day-row select {
+                width: 100% !important;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="bg-overlay"></div>
 
-    <div class="glass-card" id="loginCard">
+    <div class="glass-card active" id="loginCard">
         <h2 class="header-title">Admin Access</h2>
-        <input type="password" id="adminPassword" placeholder="Master Password" style="text-align: center; letter-spacing: 2px;" onkeypress="if(event.key==='Enter') loginAdmin()">
+        <input type="password" id="adminPassword" placeholder="Master Password"
+            style="text-align: center; letter-spacing: 2px;" onkeypress="if(event.key==='Enter') loginAdmin()">
         <button class="btn-primary" onclick="loginAdmin()">Secure Login</button>
     </div>
 
@@ -75,8 +417,10 @@
 
         <div class="section-card">
             <h3>1. Master Database</h3>
-            <p style="font-size: 13px; color: #ccc;">The system fetches <b>ITS.csv</b> directly from your GitHub repository for verification.</p>
-            <div id="dbStatus" style="font-weight: 600; font-size: 14px; color: #ffc107;">Fetching database from GitHub...</div>
+            <p style="font-size: 13px; color: #ccc;">The system fetches <b>ITS.csv</b> directly from your GitHub
+                repository for verification.</p>
+            <div id="dbStatus" style="font-weight: 600; font-size: 14px; color: #ffc107;">Fetching database from
+                GitHub...</div>
         </div>
 
         <div class="section-card">
@@ -91,7 +435,8 @@
             <h3>3. Manage Volunteers (Live Sync)</h3>
             <div class="flex-row">
                 <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1;">
-                <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;" onkeypress="if(event.key==='Enter') addVolunteer()">
+                <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;"
+                    onkeypress="if(event.key==='Enter') addVolunteer()">
                 <button class="btn-action" onclick="addVolunteer()">Add</button>
             </div>
             <ul class="item-list" id="volList"></ul>
@@ -102,11 +447,22 @@
             <p style="font-size: 13px; color: #ccc;">Watch scans from ALL doors happen in real-time.</p>
             <div class="flex-row" style="margin-bottom: 15px;">
                 <select id="adminViewEvent" style="flex: 1;" onchange="loadLogsForView()"></select>
+                <button class="btn-danger" style="white-space: nowrap; width: auto;" onclick="resetGlobalLogs()">⚠️
+                    Reset Logs</button>
             </div>
-            <div id="logStatus" style="font-weight: 600; font-size: 14px; color: var(--primary-gold);">Total Scanned: 0</div>
+            <div id="logStatus" style="font-weight: 600; font-size: 14px; color: var(--primary-gold);">Total Scanned: 0
+            </div>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Time</th><th>ITS number</th><th>Name</th><th>Door Vol.</th><th>Action</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>ITS number</th>
+                            <th>Name</th>
+                            <th>Door Vol.</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
                     <tbody id="adminLogBody"></tbody>
                 </table>
             </div>
@@ -123,17 +479,17 @@
     </div>
 
     <script>
-        const ADMIN_PASSWORD = "admin123"; 
+        const ADMIN_PASSWORD = "admin123";
 
         // 🔴 🔴 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 🔴 🔴
         const firebaseConfig = {
-  apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
-  authDomain: "its-scanning-f8f5a.firebaseapp.com",
-  databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
-  projectId: "its-scanning-f8f5a",
-  storageBucket: "its-scanning-f8f5a.firebasestorage.app",
-  messagingSenderId: "590874259733",
-  appId: "1:590874259733:web:314d6a1fadb3780429b91c"
+            apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
+            authDomain: "its-scanning-f8f5a.firebaseapp.com",
+            databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
+            projectId: "its-scanning-f8f5a",
+            storageBucket: "its-scanning-f8f5a.firebasestorage.app",
+            messagingSenderId: "590874259733",
+            appId: "1:590874259733:web:314d6a1fadb3780429b91c"
         };
         // --------------------------------------------------
 
@@ -143,7 +499,7 @@
         let globalDays = {}; let globalLogs = [];
 
         function loginAdmin() {
-            if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+            if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
                 document.getElementById('loginCard').style.display = 'none';
                 document.getElementById('dashboardCard').style.display = 'block';
                 initAdmin();
@@ -161,7 +517,7 @@
                 globalDays = snap.val();
                 if (!globalDays) {
                     globalDays = {};
-                    for(let i=1; i<=10; i++) globalDays[i] = { name: `Day ${i}`, status: i === 1 ? 'active' : 'upcoming' };
+                    for (let i = 1; i <= 10; i++) globalDays[i] = { name: `Day ${i}`, status: i === 1 ? 'active' : 'upcoming' };
                     db.ref('config/days').set(globalDays);
                 }
                 renderDays();
@@ -181,18 +537,18 @@
             let currentView = viewSelect.value;
             container.innerHTML = ''; viewSelect.innerHTML = ''; exportSelect.innerHTML = '';
 
-            for(let i=1; i<=10; i++) {
-                let day = globalDays[i]; if(!day) continue;
+            for (let i = 1; i <= 10; i++) {
+                let day = globalDays[i]; if (!day) continue;
                 let bg = day.status === 'active' ? 'rgba(40, 167, 69, 0.2)' : (day.status === 'done' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)');
-                
+
                 container.innerHTML += `
-                    <div class="day-row" style="background: ${bg};">
+                    <div class="day-row" style="background: ${bg}; --i: ${i};">
                         <strong style="width: 50px; color: var(--primary-gold);">Slot ${i}</strong>
                         <input type="text" value="${day.name}" onchange="updateDayName(${i}, this.value)" style="flex:1;">
                         <select onchange="updateDayStatus(${i}, this.value)" style="width:130px; background: rgba(0,0,0,0.5);">
-                            <option value="upcoming" ${day.status==='upcoming'?'selected':''}>Upcoming</option>
-                            <option value="active" ${day.status==='active'?'selected':''}>Active</option>
-                            <option value="done" ${day.status==='done'?'selected':''}>Done</option>
+                            <option value="upcoming" ${day.status === 'upcoming' ? 'selected' : ''}>Upcoming</option>
+                            <option value="active" ${day.status === 'active' ? 'selected' : ''}>Active</option>
+                            <option value="done" ${day.status === 'done' ? 'selected' : ''}>Done</option>
                         </select>
                     </div>
                 `;
@@ -209,19 +565,19 @@
         function renderVolunteers(vols) {
             const list = document.getElementById('volList'); list.innerHTML = '';
             if (Object.keys(vols).length === 0) { list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>'; return; }
-            for(let pwd in vols) {
+            for (let pwd in vols) {
                 list.innerHTML += `<li class="item-row"><span><strong>${vols[pwd]}</strong> <span style="color:var(--primary-gold); margin-left:10px;">(Pass: ${pwd})</span></span><button class="btn-danger btn-small" onclick="deleteVolunteer('${pwd}')">Remove</button></li>`;
             }
         }
 
         function addVolunteer() {
             const name = document.getElementById('volName').value.trim(); const pass = document.getElementById('volPass').value.trim();
-            if(!name || !pass) return alert("Enter name and password.");
+            if (!name || !pass) return alert("Enter name and password.");
             db.ref(`config/volunteers/${pass}`).set(name).catch(e => alert("Database Error: " + e.message));
             document.getElementById('volName').value = ''; document.getElementById('volPass').value = '';
         }
 
-        function deleteVolunteer(pwd) { if(confirm("Remove this volunteer?")) db.ref(`config/volunteers/${pwd}`).remove(); }
+        function deleteVolunteer(pwd) { if (confirm("Remove this volunteer?")) db.ref(`config/volunteers/${pwd}`).remove(); }
 
         let currentLogListener = null;
 
@@ -233,14 +589,14 @@
 
             db.ref(currentLogListener).on('value', snap => {
                 const logsData = snap.val() || {};
-                globalLogs = Object.keys(logsData).map(key => ({...logsData[key], fbKey: key}));
-                
+                globalLogs = Object.keys(logsData).map(key => ({ ...logsData[key], fbKey: key }));
+
                 const tbody = document.getElementById('adminLogBody');
                 document.getElementById('logStatus').innerHTML = `Total Scanned Globally: <strong style="color: white; font-size: 18px;">${globalLogs.length}</strong>`;
                 tbody.innerHTML = '';
-                
+
                 for (let i = globalLogs.length - 1; i >= 0; i--) {
-                    const r = globalLogs[i]; 
+                    const r = globalLogs[i];
                     let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : "";
                     tbody.innerHTML += `<tr style="${rowColor}"><td>${r.time}</td><td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td><td><strong>${r.name}</strong></td><td style="color: rgba(255,255,255,0.5);">${r.volunteer || "Unknown"}</td><td><button class="btn-danger btn-small" onclick="undoCloudEntry('${slotId}', '${r.fbKey}')">Undo</button></td></tr>`;
                 }
@@ -249,16 +605,26 @@
 
         function undoCloudEntry(slotId, fbKey) { if (confirm(`Delete this scan from the cloud?`)) { db.ref(`logs/slot_${slotId}/${fbKey}`).remove(); } }
 
+        function resetGlobalLogs() {
+            const slotId = document.getElementById('adminViewEvent').value;
+            if (!slotId) return alert("Select a session first to reset logs.");
+
+            const dayName = globalDays[slotId] ? globalDays[slotId].name : "selected session";
+            if (confirm(`⚠️ WARNING: Are you sure you want to completely RESET all scanning data for "${dayName}"?\n\nThis action CANNOT be undone.`)) {
+                db.ref(`logs/slot_${slotId}`).remove();
+            }
+        }
+
         function downloadScanning() {
-            const slotId = document.getElementById('exportEventSelect').value; if(!slotId) return alert("No day selected.");
+            const slotId = document.getElementById('exportEventSelect').value; if (!slotId) return alert("No day selected.");
             const dayName = globalDays[slotId].name;
             if (globalLogs.length === 0) return alert(`No scanning data in cloud.`);
-            
+
             let csvContent = "data:text/csv;charset=utf-8,Session,Time,ITS number,Name,Scanned By\n";
             globalLogs.forEach(row => { let volName = row.volunteer || 'Unknown'; let safeName = dayName.replace(/,/g, ''); let safePersonName = row.name.replace(/,/g, ''); csvContent += `${safeName},${row.time},${row.id},${safePersonName},${volName}\n`; });
             const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `Cloud_Export_Slot${slotId}_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
     </script>
 </body>
-</html>
 
+</html>
