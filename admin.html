@@ -662,6 +662,11 @@
                     isVolAdmin = vol.isAdmin === true;
                 }
 
+                // SECURITY FIX: If the current user is NOT an owner, do not show other admins in the list
+                if (currentRole !== 'owner' && isVolAdmin) {
+                    continue;
+                }
+
                 let adminBadge = isVolAdmin ? '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px;">ADMIN</span>' : '';
 
                 // Hide remove button for non-owners, or keep? The plan said owner only, but let's hide via CSS or JS conditionally
