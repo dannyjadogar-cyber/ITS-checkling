@@ -1,0 +1,21 @@
+{
+    "name": "ITS Scanning",
+    "short_name": "ITS Scan",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#0b1c11",
+    "theme_color": "#D4AF37",
+    "description": "Idaratut Ta'reef Al Shakhsi Scanning App",
+    "icons": [
+        {
+            "src": "/logo.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
