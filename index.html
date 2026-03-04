@@ -4,8 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ITS Scannning</title>
+    <title>Admin Dashboard - ITS Portal</title>
     <link rel="icon" type="image/png" href="logo.png">
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0b1c11">
+    <link rel="apple-touch-icon" href="/logo.png">
 
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap"
@@ -20,9 +24,7 @@
             --glass-bg: rgba(14, 38, 24, 0.75);
             --glass-border: rgba(212, 175, 55, 0.3);
             --text-light: #E8F0EA;
-            --success-glow: rgba(40, 167, 69, 0.6);
-            --error-glow: rgba(220, 53, 69, 0.6);
-            --warning-glow: rgba(255, 193, 7, 0.6);
+            --card-inner: rgba(0, 0, 0, 0.4);
         }
 
         body {
@@ -59,46 +61,61 @@
             z-index: -1;
         }
 
-        .main-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            padding: 40px 50px;
             border-radius: 20px;
-            width: 100%;
-            max-width: 450px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            transition: box-shadow 0.4s ease;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            display: none;
             box-sizing: border-box;
         }
 
-        .glow-green {
-            box-shadow: 0 0 40px var(--success-glow), inset 0 0 20px var(--success-glow) !important;
-            border-color: #28a745 !important;
+        .glass-card.active {
+            display: block;
+            animation: slideUpFade 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
-        .glow-red {
-            box-shadow: 0 0 40px var(--error-glow), inset 0 0 20px var(--error-glow) !important;
-            border-color: #dc3545 !important;
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .glow-yellow {
-            box-shadow: 0 0 40px var(--warning-glow), inset 0 0 20px var(--warning-glow) !important;
-            border-color: #ffc107 !important;
+        #loginCard {
+            display: block;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gold);
+            border-radius: 10px;
         }
 
         .header-title {
             font-family: 'Cinzel', serif;
-            font-size: 24px;
+            font-size: 28px;
             letter-spacing: 2px;
             text-align: center;
             margin: 0 0 30px 0;
@@ -108,230 +125,282 @@
             padding-bottom: 15px;
         }
 
-        input[type="text"],
-        input[type="password"],
+        .section-card {
+            background: var(--card-inner);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            border-color: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-card h3 {
+            margin-top: 0;
+            font-family: 'Cinzel', serif;
+            color: var(--primary-gold);
+            letter-spacing: 1px;
+            font-size: 20px;
+        }
+
+        input,
         select {
             width: 100%;
-            padding: 15px 20px;
-            font-size: 16px;
+            padding: 12px 15px;
+            font-size: 14px;
             font-family: 'Poppins', sans-serif;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
             color: white;
             box-sizing: border-box;
             transition: 0.3s;
         }
 
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
         input:focus,
         select:focus {
             outline: none;
-            background-color: rgba(255, 255, 255, 0.15);
             border-color: var(--primary-gold);
+            background-color: rgba(255, 255, 255, 0.1);
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
 
-        input:disabled {
-            background-color: rgba(0, 0, 0, 0.2);
-            cursor: not-allowed;
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        select {
-            appearance: none;
-            cursor: pointer;
-        }
-
-        select option {
-            background-color: #222;
-            color: white;
-        }
-
-        #attendeeId {
-            font-size: 24px;
-            letter-spacing: 4px;
-            text-align: center;
-            font-weight: 600;
-            border-color: var(--primary-gold);
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            font-size: 16px;
-            font-family: 'Poppins', sans-serif;
-            color: #0b1c11;
-            background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover));
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            margin-bottom: 20px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .btn-primary:disabled {
-            background: #555;
-            transform: none;
-            box-shadow: none;
-            cursor: not-allowed;
-            color: #888;
-        }
-
-        .btn-undo {
-            background: rgba(220, 53, 69, 0.2);
-            border: 1px solid rgba(220, 53, 69, 0.5);
-            color: #ff8888;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            width: 100%;
-            margin-bottom: 20px;
-            display: none;
-            transition: 0.2s;
-        }
-
-        .btn-undo:hover {
-            background: rgba(220, 53, 69, 0.4);
-            color: white;
-        }
-
-        #scanResult {
-            font-size: 18px;
-            text-align: center;
-            min-height: 70px;
-            padding: 15px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            margin-bottom: 20px;
-            border: 1px dashed rgba(255, 255, 255, 0.2);
+        .flex-row {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .result-name {
-            font-size: 24px;
-            font-weight: 600;
-            margin-top: 5px;
-            color: white;
-        }
-
-        .search-container {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 20px;
-            margin-bottom: 10px;
-        }
-
-        .search-container label {
-            display: block;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .search-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            justify-content: space-between;
+            gap: 10px;
             align-items: center;
         }
 
-        .search-item:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--primary-gold);
+        .flex-row input,
+        .flex-row select {
+            margin-bottom: 0;
         }
 
-        .stats-container {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .stat-box {
-            text-align: left;
-        }
-
-        .stat-label {
-            font-size: 11px;
+        button {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-value {
-            font-size: 16px;
-            color: var(--primary-gold);
-            font-weight: 600;
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
         }
 
-        .stat-large {
-            font-size: 28px;
-            color: white;
-            line-height: 1;
-            margin-top: 5px;
+        button:hover::after {
+            left: 150%;
         }
 
-        #scannerView {
-            display: none;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover));
+            width: 100%;
+            color: #0b1c11;
         }
 
-        #networkStatus {
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-action {
+            background: #0056b3;
+            white-space: nowrap;
+        }
+
+        .btn-action:hover {
+            background: #004494;
+            transform: scale(1.05);
+        }
+
+        .btn-success {
+            background: #28a745;
+            white-space: nowrap;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: scale(1.02);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
             font-size: 12px;
-            color: #ffc107;
-            text-align: center;
-            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: none;
+        }
+
+        .item-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0 0;
+        }
+
+        .item-row {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: all 0.3s ease;
+            animation: fadeInRow 0.4s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .item-row:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .day-row {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: all 0.3s;
+            animation: fadeInRow 0.5s ease forwards;
+            opacity: 0;
+            animation-delay: calc(var(--i) * 0.05s);
+        }
+
+        .day-row:hover {
+            border-color: var(--primary-gold);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes fadeInRow {
+            to {
+                opacity: 1;
+                transform: translate(0);
+            }
+        }
+
+        .table-container {
+            max-height: 300px;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 500px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            background-color: rgba(0, 0, 0, 0.8);
+            position: sticky;
+            top: 0;
+            color: var(--primary-gold);
+            font-family: 'Cinzel', serif;
         }
 
         /* --- MOBILE RESPONSIVE CSS --- */
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
             .glass-card {
-                padding: 25px 15px;
+                padding: 20px 15px;
                 border-radius: 15px;
                 width: 95%;
+                max-height: 95vh;
             }
 
             .header-title {
                 font-size: 22px;
             }
 
-            #attendeeId {
-                font-size: 20px;
-                letter-spacing: 2px;
+            .section-card {
+                padding: 15px;
             }
 
-            .stats-container {
+            .section-card h3 {
+                font-size: 16px;
+            }
+
+            /* Stack flex rows vertically on mobile */
+            .flex-row {
                 flex-direction: column;
-                gap: 15px;
-                align-items: center;
+                align-items: stretch;
+                gap: 10px;
             }
 
-            .stat-box {
-                text-align: center !important;
+            .flex-row input,
+            .flex-row select,
+            .flex-row button {
+                width: 100% !important;
+                margin-bottom: 0;
+            }
+
+            /* Adjust Day Row for mobile */
+            .day-row strong {
+                width: 100%;
+                display: block;
+                margin-bottom: 5px;
+                color: #fff;
+            }
+
+            .day-row input {
+                width: 100% !important;
+            }
+
+            .day-row select {
+                width: 100% !important;
             }
         }
     </style>
@@ -339,56 +408,113 @@
 
 <body>
     <div class="bg-overlay"></div>
-    <div class="main-container">
-        <div class="glass-card" id="mainCard">
-            <h2 class="header-title">Idaratut Ta'reef Al Shakhsi</h2>
 
-            <div id="loginView">
-                <div style="text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.7); font-size: 14px;">
-                    Volunteer Access Portal</div>
-                <div id="networkStatus">🔄 Connecting to Cloud Server...</div>
+    <div class="glass-card active" id="loginCard">
+        <h2 class="header-title">Admin Access</h2>
+        <input type="password" id="adminPassword" placeholder="Master Password"
+            style="text-align: center; letter-spacing: 2px;" onkeypress="if(event.key==='Enter') loginAdmin()">
+        <button class="btn-primary" onclick="loginAdmin()">Secure Login</button>
+    </div>
 
-                <input type="password" id="volPassword" placeholder="Enter Unique Password"
-                    onkeypress="if(event.key==='Enter') loginVolunteer()" disabled>
-                <button class="btn-primary" id="loginBtn" onclick="loginVolunteer()" disabled>Secure Login</button>
+    <div class="glass-card" id="dashboardCard">
+        <h2 class="header-title">⚙️ ITS Cloud Center</h2>
+
+        <div class="section-card">
+            <h3>1. Master Database</h3>
+            <p style="font-size: 13px; color: #ccc;">The system fetches <b>ITS.csv</b> directly from your GitHub
+                repository for verification.</p>
+            <div id="dbStatus" style="font-weight: 600; font-size: 14px; color: #ffc107;">Fetching database from
+                GitHub...</div>
+        </div>
+
+        <div class="section-card">
+            <h3>2. Manage 10 Days (Live Sync)</h3>
+            <p style="font-size: 13px; color: #ccc;">Changes here instantly sync to all volunteer phones.</p>
+            <div id="daysContainer">
+                <span style="color: #ffc107;">Connecting to Firebase...</span>
             </div>
+        </div>
 
-            <div id="scannerView">
-                <select id="volunteerEventSelect" onchange="switchEvent()">
-                    <option value="">-- Select Active Session --</option>
+        <div class="section-card owner-only">
+            <h3>3. Manage Volunteers (Live Sync)</h3>
+            <div class="flex-row">
+                <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1;">
+                <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;"
+                    onkeypress="if(event.key==='Enter') addVolunteer()">
+                <label
+                    style="display: flex; align-items: center; gap: 5px; color: var(--primary-gold); font-size: 13px; white-space: nowrap;">
+                    <input type="checkbox" id="volIsAdmin" style="width: auto; margin: 0;"> Make Admin
+                </label>
+                <button class="btn-action" onclick="addVolunteer()">Add</button>
+            </div>
+            <ul class="item-list" id="volList"></ul>
+        </div>
+
+        <div class="section-card">
+            <h3>4. Live Global Monitor</h3>
+            <p style="font-size: 13px; color: #ccc;">Watch scans from ALL doors happen in real-time.</p>
+            <div class="flex-row" style="margin-bottom: 15px;">
+                <select id="adminViewEvent" style="flex: 1;" onchange="loadLogsForView()"></select>
+                <button class="btn-danger" style="white-space: nowrap; width: auto;" onclick="resetGlobalLogs()">⚠️
+                    Reset Logs</button>
+            </div>
+            <div id="logStatus" style="font-weight: 600; font-size: 14px; color: var(--primary-gold);">Total Scanned: 0
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>ITS number</th>
+                            <th>Name</th>
+                            <th>Door Vol.</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminLogBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-card owner-only">
+            <h3>5. Download Global Reports</h3>
+            <p style="font-size: 13px; color: #ccc;">Export the combined cloud database for a session.</p>
+            <div class="flex-row">
+                <select id="exportEventSelect" style="flex: 1;"></select>
+                <button class="btn-success" onclick="downloadScanning()">📥 Export Global CSV</button>
+            </div>
+        </div>
+
+        <div class="section-card owner-only">
+            <h3>6. Admin Action Logs</h3>
+            <p style="font-size: 13px; color: #ccc;">Monitor actions taken by Admins.</p>
+            <div class="flex-row" style="margin-bottom: 15px;">
+                <select id="adminLogFilter" style="flex: 1;" onchange="renderAdminLogs()">
+                    <option value="all">-- All Admins --</option>
                 </select>
-
-                <input type="text" id="attendeeId" inputmode="numeric" pattern="[0-9]*"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="8"
-                    placeholder="ENTER ITS NUMBER" onkeypress="handleKeyPress(event)" disabled>
-
-                <button class="btn-primary" id="submitBtn" onclick="verifyAndLog()" disabled>Log Attendance</button>
-                <div id="scanResult"><span style="color: rgba(255,255,255,0.5);">Awaiting session selection...</span>
-                </div>
-                <button id="undoBtn" class="btn-undo" onclick="undoLastScan()">↩️ Undo Previous Scan</button>
-
-                <div class="search-container">
-                    <label>Manual Name Search</label>
-                    <input type="text" id="searchInput" placeholder="Type attendee name..." onkeyup="searchAttendee()"
-                        disabled style="margin-bottom: 10px; font-size: 14px; padding: 12px;">
-                    <div id="searchResults"></div>
-                </div>
-
-                <div class="stats-container">
-                    <div class="stat-box">
-                        <div class="stat-label">Volunteer</div>
-                        <div class="stat-value" id="volNameDisplay">-</div>
-                    </div>
-                    <div class="stat-box" style="text-align: right;">
-                        <div class="stat-label">Global Total Inside</div>
-                        <div class="stat-large" id="totalCount">0</div>
-                    </div>
-                </div>
+                <button class="btn-danger" style="white-space: nowrap; width: auto;" onclick="clearAdminLogs()">🗑️
+                    Clear Logs</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Admin</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminActionLogBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
+        const ADMIN_PASSWORD = "admin123";
+        let currentRole = 'admin'; // defaults to admin if logged in via index.html
+        let currentAdminName = 'Unknown Admin'; // to track who is doing what
+
         // 🔴 🔴 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 🔴 🔴
         const firebaseConfig = {
             apiKey: "AIzaSyA6iLQ_Q8gwtPWEKFP1jDdDrNCkFLSVtug",
@@ -404,153 +530,282 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let masterData = {}; let globalDays = {}; let cloudVols = {}; let cloudLogs = [];
-        let currentSlotId = ""; let currentDayName = ""; let currentVolunteerName = ""; let lastPushedKey = null;
+        let globalDays = {}; let globalLogs = [];
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) { if (audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.1); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3); } }
-        function flashPanel(colorClass) { const card = document.getElementById('mainCard'); card.classList.add(colorClass); setTimeout(() => { card.classList.remove(colorClass); }, 600); }
+        function loginAdmin() {
+            if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+                // Set the session token so direct navigations or reloads don't require password again
+                sessionStorage.setItem('admin_auth', 'true');
+                sessionStorage.setItem('role', 'owner');
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('dashboardCard').style.display = 'block';
+                initAdmin();
+            } else { alert("Incorrect Admin Password."); document.getElementById('adminPassword').value = ''; }
+        }
 
-        window.onload = async function () {
+        window.addEventListener('load', () => {
+            // Check if the user is already authenticated
+            if (sessionStorage.getItem('admin_auth') === 'true') {
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('dashboardCard').style.display = 'block';
+                initAdmin();
+            }
+        });
+
+        async function initAdmin() {
+            currentRole = sessionStorage.getItem('role') || 'admin';
+
+            // UI filtering based on role
+            if (currentRole !== 'owner') {
+                const ownerElements = document.querySelectorAll('.owner-only');
+                ownerElements.forEach(el => el.style.display = 'none');
+            } else {
+                currentAdminName = 'Owner';
+            }
+
             try {
                 const response = await fetch('ITS.csv');
-                if (response.ok) {
-                    const text = await response.text();
-                    const rows = text.split('\n');
-                    for (let i = 1; i < rows.length; i++) {
-                        const cols = rows[i].split(',');
-                        if (cols.length >= 2 && cols[0].trim() !== "") masterData[cols[0].trim()] = { name: cols[1].trim() };
-                    }
-                    document.getElementById('networkStatus').innerHTML = "<span style='color: #28a745;'>✔️ Cloud Connected & Ready</span>";
-                    document.getElementById('volPassword').disabled = false;
-                    document.getElementById('loginBtn').disabled = false;
-                } else { document.getElementById('networkStatus').innerHTML = "<span style='color: #dc3545;'>❌ Error: ITS.csv not found on server.</span>"; }
-            } catch (e) { document.getElementById('networkStatus').innerHTML = "<span style='color: #dc3545;'>❌ Error connecting to server.</span>"; }
+                if (response.ok) document.getElementById('dbStatus').innerHTML = "<span style='color: #28a745;'>✔️ Connected to GitHub ITS.csv</span>";
+                else document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>❌ Could not find ITS.csv on GitHub. Check filename.</span>";
+            } catch (e) { document.getElementById('dbStatus').innerHTML = "<span style='color: #dc3545;'>❌ Offline / Fetch Error.</span>"; }
 
-            db.ref('config/days').on('value', snap => { globalDays = snap.val() || {}; if (currentVolunteerName) updateDropdown(); });
-            db.ref('config/volunteers').on('value', snap => { cloudVols = snap.val() || {}; });
-        };
+            db.ref('config/days').on('value', snap => {
+                globalDays = snap.val();
+                if (!globalDays) {
+                    globalDays = {};
+                    for (let i = 1; i <= 10; i++) globalDays[i] = { name: `Day ${i}`, status: i === 1 ? 'active' : 'upcoming' };
+                    db.ref('config/days').set(globalDays);
+                }
+                renderDays();
+            }, (error) => {
+                document.getElementById('daysContainer').innerHTML = `<div style="background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; padding: 15px; border-radius: 8px;"><h4 style="color:#ff6b6b; margin-top:0;">❌ Firebase Connection Blocked</h4><p style="font-size:13px;">Error: ${error.message}</p><p style="font-size:13px; margin-bottom:0;">Please go to your Firebase Console -> Realtime Database -> Rules, and set both <b>.read</b> and <b>.write</b> to <b>true</b>.</p></div>`;
+            });
 
-        function loginVolunteer() {
-            const pass = document.getElementById('volPassword').value.trim();
-            if (cloudVols[pass]) {
-                currentVolunteerName = cloudVols[pass];
-                document.getElementById('loginView').style.display = 'none';
-                document.getElementById('scannerView').style.display = 'block';
-                document.getElementById('volNameDisplay').innerText = currentVolunteerName;
-                updateDropdown();
-            } else { alert("❌ Invalid password. Ask Admin to add you."); document.getElementById('volPassword').value = ''; }
-        }
+            db.ref('config/volunteers').on('value', snap => {
+                let vols = snap.val() || {};
 
-        function updateDropdown() {
-            const dropdown = document.getElementById('volunteerEventSelect');
-            dropdown.innerHTML = '<option value="">-- Select Active Session --</option>';
-            let activeFound = false;
-            for (let i = 1; i <= 10; i++) {
-                let day = globalDays[i];
-                if (day && day.status === 'active') { dropdown.innerHTML += `<option value="${i}" data-name="${day.name}">${day.name}</option>`; activeFound = true; }
-            }
-            if (!activeFound) dropdown.innerHTML = '<option value="">-- No Active Sessions --</option>';
+                // If the user came from index.html we need to figure out their name based on their password
+                // But we don't store passwords in session storage. 
+                // Let's at least grab the list to render.
+                renderVolunteers(vols);
+            });
 
-            if (currentSlotId && (!globalDays[currentSlotId] || globalDays[currentSlotId].status !== 'active')) {
-                dropdown.value = ""; switchEvent();
-            } else if (currentSlotId) { dropdown.value = currentSlotId; }
-        }
-
-        let currentLogListener = null;
-
-        function switchEvent() {
-            const selectEl = document.getElementById('volunteerEventSelect');
-            currentSlotId = selectEl.value;
-            currentDayName = currentSlotId ? selectEl.options[selectEl.selectedIndex].getAttribute('data-name') : "";
-
-            const state = currentSlotId === "";
-            document.getElementById('attendeeId').disabled = state;
-            document.getElementById('submitBtn').disabled = state;
-            document.getElementById('searchInput').disabled = state;
-
-            if (state) {
-                document.getElementById('scanResult').innerHTML = "<span style='color: rgba(255,255,255,0.5);'>Awaiting session selection...</span>";
-                document.getElementById('totalCount').innerText = "0"; document.getElementById('undoBtn').style.display = 'none';
-                if (currentLogListener) db.ref(currentLogListener).off();
-            } else {
-                document.getElementById('scanResult').innerHTML = `<span style='color: var(--primary-gold);'>Ready for "${currentDayName}" scans...</span>`;
-                document.getElementById('attendeeId').focus(); lastPushedKey = null;
-
-                if (currentLogListener) db.ref(currentLogListener).off();
-                currentLogListener = `logs/slot_${currentSlotId}`;
-
-                db.ref(currentLogListener).on('value', snap => {
-                    const logsObj = snap.val() || {};
-                    cloudLogs = Object.keys(logsObj).map(key => ({ ...logsObj[key], fbKey: key }));
-                    document.getElementById('totalCount').innerText = cloudLogs.length;
+            if (currentRole === 'owner') {
+                db.ref('logs/admin_actions').on('value', snap => {
+                    globalActionLogs = snap.val() || {};
+                    updateAdminFilterDropdown();
+                    renderAdminLogs();
                 });
             }
         }
 
-        function handleKeyPress(event) { if (event.key === "Enter") verifyAndLog(); }
-
-        function searchAttendee() {
-            if (currentSlotId === "") return;
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const resultsDiv = document.getElementById('searchResults'); resultsDiv.innerHTML = '';
-            if (query.length < 2) return;
-
-            let matchCount = 0;
-            for (const [id, person] of Object.entries(masterData)) {
-                if (person.name.toLowerCase().includes(query)) {
-                    const div = document.createElement('div'); div.className = 'search-item';
-                    div.innerHTML = `<strong style="color: #fff; font-size: 14px;">${person.name}</strong><small style="color: var(--primary-gold); font-family: monospace; font-size: 14px;">${id}</small>`;
-                    div.onclick = function () { document.getElementById('attendeeId').value = id; document.getElementById('searchInput').value = ''; resultsDiv.innerHTML = ''; verifyAndLog(); };
-                    resultsDiv.appendChild(div); matchCount++;
-                } if (matchCount >= 4) break;
-            }
-            if (matchCount === 0) resultsDiv.innerHTML = "<div style='color:#dc3545; padding:10px; font-size: 14px;'>No matches found.</div>";
-        }
-
-        function undoLastScan() {
-            if (!lastPushedKey || currentSlotId === "") return alert("You can only undo your most recent scan.");
-
-            db.ref(`logs/slot_${currentSlotId}/${lastPushedKey}`).remove().then(() => {
-                document.getElementById('scanResult').innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Scan Removed</span><span class='result-name' style='color:#aaa;'>Previous scan deleted</span>`;
-                lastPushedKey = null;
-                document.getElementById('undoBtn').style.display = 'none'; document.getElementById('attendeeId').focus();
+        function logAdminAction(action) {
+            const timeNow = new Date().toLocaleString();
+            db.ref('logs/admin_actions').push().set({
+                time: timeNow,
+                admin: currentRole === 'owner' ? 'Owner' : 'Admin', // In a real app we'd get the actual name from index pass logic
+                action: action
             });
         }
 
-        function verifyAndLog() {
-            if (currentSlotId === "") return alert("You must select a Session first.");
-            const inputField = document.getElementById('attendeeId'); const inputId = inputField.value.trim(); const resultDiv = document.getElementById('scanResult');
+        function renderDays() {
+            const container = document.getElementById('daysContainer');
+            const viewSelect = document.getElementById('adminViewEvent');
+            const exportSelect = document.getElementById('exportEventSelect');
+            let currentView = viewSelect.value;
+            container.innerHTML = ''; viewSelect.innerHTML = ''; exportSelect.innerHTML = '';
 
-            if (Object.keys(masterData).length === 0) return alert("Database missing. Contact Admin.");
-            if (inputId.length !== 8) { playSound('error'); flashPanel('glow-red'); resultDiv.innerHTML = `<span style='color:#dc3545; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Error</span><span class='result-name' style='color:#dc3545;'>Invalid ITS Number</span>`; inputField.value = ''; return; }
+            for (let i = 1; i <= 10; i++) {
+                let day = globalDays[i]; if (!day) continue;
+                let bg = day.status === 'active' ? 'rgba(40, 167, 69, 0.2)' : (day.status === 'done' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)');
 
-            const alreadyCheckedIn = cloudLogs.some(record => record.id === inputId);
+                container.innerHTML += `
+                    <div class="day-row" style="background: ${bg}; --i: ${i};">
+                        <strong style="width: 50px; color: var(--primary-gold);">Slot ${i}</strong>
+                        <input type="text" value="${day.name}" onchange="updateDayName(${i}, this.value)" style="flex:1;">
+                        <select onchange="updateDayStatus(${i}, this.value)" style="width:130px; background: rgba(0,0,0,0.5);">
+                            <option value="upcoming" ${day.status === 'upcoming' ? 'selected' : ''}>Upcoming</option>
+                            <option value="active" ${day.status === 'active' ? 'selected' : ''}>Active</option>
+                            <option value="done" ${day.status === 'done' ? 'selected' : ''}>Done</option>
+                        </select>
+                    </div>
+                `;
+                viewSelect.innerHTML += `<option value="${i}">${day.name}</option>`;
+                exportSelect.innerHTML += `<option value="${i}">${day.name}</option>`;
+            }
+            if (currentView && globalDays[currentView]) viewSelect.value = currentView;
+            loadLogsForView();
+        }
 
-            if (alreadyCheckedIn) {
-                playSound('error'); flashPanel('glow-yellow');
-                let displayName = masterData[inputId] ? masterData[inputId].name : "Mehman";
-                resultDiv.innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Already SCANNED</span><span class='result-name'>${displayName}</span>`;
-            } else {
-                playSound('success'); flashPanel('glow-green');
-                const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        function updateDayName(slotNum, newName) {
+            let name = newName || `Day ${slotNum}`;
+            db.ref(`config/days/${slotNum}/name`).set(name);
+            logAdminAction(`Changed Slot ${slotNum} name to "${name}"`);
+        }
+        function updateDayStatus(slotNum, newStatus) {
+            db.ref(`config/days/${slotNum}/status`).set(newStatus);
+            logAdminAction(`Changed Slot ${slotNum} status to "${newStatus}"`);
+        }
 
-                let pName = masterData[inputId] ? masterData[inputId].name : "Mehman";
-                let statusMsg = masterData[inputId] ? "SCANNED" : "Guest Approved";
+        function renderVolunteers(vols) {
+            const list = document.getElementById('volList'); list.innerHTML = '';
+            if (Object.keys(vols).length === 0) { list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>'; return; }
+            for (let pwd in vols) {
+                let vol = vols[pwd];
+                let isVolAdmin = false;
+                let volName = "";
 
-                resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>${statusMsg}</span><span class='result-name'>${pName}</span>`;
+                if (typeof vol === 'string') {
+                    volName = vol;
+                } else {
+                    volName = vol.name;
+                    isVolAdmin = vol.isAdmin === true;
+                }
 
-                const newRef = db.ref(`logs/slot_${currentSlotId}`).push();
-                newRef.set({ time: timeNow, id: inputId, name: pName, volunteer: currentVolunteerName });
+                let adminBadge = isVolAdmin ? '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px;">ADMIN</span>' : '';
 
-                lastPushedKey = newRef.key; document.getElementById('undoBtn').style.display = 'block';
+                // Hide remove button for non-owners, or keep? The plan said owner only, but let's hide via CSS or JS conditionally
+                let removeBtn = currentRole === 'owner' ? `<button class="btn-danger btn-small" onclick="deleteVolunteer('${pwd}', '${volName}')">Remove</button>` : '';
+
+                list.innerHTML += `<li class="item-row"><span><strong>${volName}</strong> ${adminBadge} <span style="color:var(--primary-gold); margin-left:10px;">(Pass: ${pwd})</span></span>${removeBtn}</li>`;
+            }
+        }
+
+        function addVolunteer() {
+            if (currentRole !== 'owner') return alert("Only the Owner can manage volunteers.");
+            const name = document.getElementById('volName').value.trim();
+            const pass = document.getElementById('volPass').value.trim();
+            const isAdmin = document.getElementById('volIsAdmin').checked;
+
+            if (!name || !pass) return alert("Enter name and password.");
+            db.ref(`config/volunteers/${pass}`).set({ name: name, isAdmin: isAdmin }).catch(e => alert("Database Error: " + e.message));
+            logAdminAction(`Added volunteer "${name}" (Admin: ${isAdmin})`);
+
+            document.getElementById('volName').value = '';
+            document.getElementById('volPass').value = '';
+            document.getElementById('volIsAdmin').checked = false;
+        }
+
+        function deleteVolunteer(pwd, volName) {
+            if (confirm(`Remove volunteer ${volName}?`)) {
+                db.ref(`config/volunteers/${pwd}`).remove();
+                logAdminAction(`Removed volunteer "${volName}"`);
+            }
+        }
+
+        let currentLogListener = null;
+
+        function loadLogsForView() {
+            const slotId = document.getElementById('adminViewEvent').value;
+            if (!slotId) return;
+            if (currentLogListener) db.ref(currentLogListener).off();
+            currentLogListener = `logs/slot_${slotId}`;
+
+            db.ref(currentLogListener).on('value', snap => {
+                const logsData = snap.val() || {};
+                globalLogs = Object.keys(logsData).map(key => ({ ...logsData[key], fbKey: key }));
+
+                const tbody = document.getElementById('adminLogBody');
+                document.getElementById('logStatus').innerHTML = `Total Scanned Globally: <strong style="color: white; font-size: 18px;">${globalLogs.length}</strong>`;
+                tbody.innerHTML = '';
+
+                for (let i = globalLogs.length - 1; i >= 0; i--) {
+                    const r = globalLogs[i];
+                    let rowColor = r.name === "Mehman" ? "background-color: rgba(255, 193, 7, 0.1);" : "";
+                    tbody.innerHTML += `<tr style="${rowColor}"><td>${r.time}</td><td style="font-family: monospace; color: var(--primary-gold);">${r.id}</td><td><strong>${r.name}</strong></td><td style="color: rgba(255,255,255,0.5);">${r.volunteer || "Unknown"}</td><td><button class="btn-danger btn-small" onclick="undoCloudEntry('${slotId}', '${r.fbKey}')">Undo</button></td></tr>`;
+                }
+            });
+        }
+
+        function undoCloudEntry(slotId, fbKey) { if (confirm(`Delete this scan from the cloud?`)) { db.ref(`logs/slot_${slotId}/${fbKey}`).remove(); } }
+
+        function resetGlobalLogs() {
+            const slotId = document.getElementById('adminViewEvent').value;
+            if (!slotId) return alert("Select a session first to reset logs.");
+
+            const dayName = globalDays[slotId] ? globalDays[slotId].name : "selected session";
+            if (confirm(`⚠️ WARNING: Are you sure you want to completely RESET all scanning data for "${dayName}"?\n\nThis action CANNOT be undone.`)) {
+                db.ref(`logs/slot_${slotId}`).remove();
+            }
+        }
+
+        function downloadScanning() {
+            const slotId = document.getElementById('exportEventSelect').value; if (!slotId) return alert("No day selected.");
+            const dayName = globalDays[slotId].name;
+            if (globalLogs.length === 0) return alert(`No scanning data in cloud.`);
+
+            let csvContent = "data:text/csv;charset=utf-8,Session,Time,ITS number,Name,Scanned By\n";
+            globalLogs.forEach(row => { let volName = row.volunteer || 'Unknown'; let safeName = dayName.replace(/,/g, ''); let safePersonName = row.name.replace(/,/g, ''); csvContent += `${safeName},${row.time},${row.id},${safePersonName},${volName}\n`; });
+            const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `Cloud_Export_Slot${slotId}_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+
+            logAdminAction(`Exported Global CSV for ${dayName}`);
+        }
+
+        let globalActionLogs = {};
+
+        function updateAdminFilterDropdown() {
+            const filterDropdown = document.getElementById('adminLogFilter');
+            const currentFilter = filterDropdown.value;
+
+            let uniqueAdmins = new Set();
+            for (let key in globalActionLogs) {
+                if (globalActionLogs[key].admin) uniqueAdmins.add(globalActionLogs[key].admin);
             }
 
-            inputField.value = ''; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; inputField.focus();
+            filterDropdown.innerHTML = '<option value="all">-- All Admins --</option>';
+            uniqueAdmins.forEach(admin => {
+                filterDropdown.innerHTML += `<option value="${admin}">${admin}</option>`;
+            });
+
+            if (currentFilter && uniqueAdmins.has(currentFilter)) {
+                filterDropdown.value = currentFilter;
+            }
+        }
+
+        function renderAdminLogs() {
+            const tbody = document.getElementById('adminActionLogBody');
+            const filter = document.getElementById('adminLogFilter').value;
+            tbody.innerHTML = '';
+
+            let logsArray = Object.keys(globalActionLogs).map(key => ({ ...globalActionLogs[key], fbKey: key }));
+            logsArray.sort((a, b) => new Date(a.time) - new Date(b.time)); // Ascending
+
+            // Render backwards for newest on top
+            for (let i = logsArray.length - 1; i >= 0; i--) {
+                const log = logsArray[i];
+                if (filter !== 'all' && log.admin !== filter) continue;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size: 12px; color: #aaa;">${log.time}</td>
+                        <td style="color: var(--primary-gold); font-weight: 600;">${log.admin}</td>
+                        <td>${log.action}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function clearAdminLogs() {
+            if (confirm("⚠️ Are you sure you want to permanently delete all Admin Action Logs?")) {
+                db.ref('logs/admin_actions').remove();
+                logAdminAction("Cleared all previous admin action logs");
+            }
+        }
+    </script>
+    <script>
+        // Check that service workers are supported
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
         }
     </script>
 </body>
 
 </html>
-
-
