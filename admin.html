@@ -7,6 +7,10 @@
     <title>Admin Dashboard - ITS Portal</title>
     <link rel="icon" type="image/png" href="logo.png">
 
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0b1c11">
+    <link rel="apple-touch-icon" href="/logo.png">
+
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap"
         rel="stylesheet">
@@ -431,12 +435,16 @@
             </div>
         </div>
 
-        <div class="section-card">
+        <div class="section-card owner-only">
             <h3>3. Manage Volunteers (Live Sync)</h3>
             <div class="flex-row">
                 <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1;">
                 <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;"
                     onkeypress="if(event.key==='Enter') addVolunteer()">
+                <label
+                    style="display: flex; align-items: center; gap: 5px; color: var(--primary-gold); font-size: 13px; white-space: nowrap;">
+                    <input type="checkbox" id="volIsAdmin" style="width: auto; margin: 0;"> Make Admin
+                </label>
                 <button class="btn-action" onclick="addVolunteer()">Add</button>
             </div>
             <ul class="item-list" id="volList"></ul>
@@ -468,7 +476,7 @@
             </div>
         </div>
 
-        <div class="section-card">
+        <div class="section-card owner-only">
             <h3>5. Download Global Reports</h3>
             <p style="font-size: 13px; color: #ccc;">Export the combined cloud database for a session.</p>
             <div class="flex-row">
@@ -476,10 +484,36 @@
                 <button class="btn-success" onclick="downloadScanning()">📥 Export Global CSV</button>
             </div>
         </div>
+
+        <div class="section-card owner-only">
+            <h3>6. Admin Action Logs</h3>
+            <p style="font-size: 13px; color: #ccc;">Monitor actions taken by Admins.</p>
+            <div class="flex-row" style="margin-bottom: 15px;">
+                <select id="adminLogFilter" style="flex: 1;" onchange="renderAdminLogs()">
+                    <option value="all">-- All Admins --</option>
+                </select>
+                <button class="btn-danger" style="white-space: nowrap; width: auto;" onclick="clearAdminLogs()">🗑️
+                    Clear Logs</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Admin</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminActionLogBody"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
         const ADMIN_PASSWORD = "admin123";
+        let currentRole = 'admin'; // defaults to admin if logged in via index.html
+        let currentAdminName = 'Unknown Admin'; // to track who is doing what
 
         // 🔴 🔴 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 🔴 🔴
         const firebaseConfig = {
@@ -500,13 +534,35 @@
 
         function loginAdmin() {
             if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+                // Set the session token so direct navigations or reloads don't require password again
+                sessionStorage.setItem('admin_auth', 'true');
+                sessionStorage.setItem('role', 'owner');
                 document.getElementById('loginCard').style.display = 'none';
                 document.getElementById('dashboardCard').style.display = 'block';
                 initAdmin();
             } else { alert("Incorrect Admin Password."); document.getElementById('adminPassword').value = ''; }
         }
 
+        window.addEventListener('load', () => {
+            // Check if the user is already authenticated
+            if (sessionStorage.getItem('admin_auth') === 'true') {
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('dashboardCard').style.display = 'block';
+                initAdmin();
+            }
+        });
+
         async function initAdmin() {
+            currentRole = sessionStorage.getItem('role') || 'admin';
+
+            // UI filtering based on role
+            if (currentRole !== 'owner') {
+                const ownerElements = document.querySelectorAll('.owner-only');
+                ownerElements.forEach(el => el.style.display = 'none');
+            } else {
+                currentAdminName = 'Owner';
+            }
+
             try {
                 const response = await fetch('ITS.csv');
                 if (response.ok) document.getElementById('dbStatus').innerHTML = "<span style='color: #28a745;'>✔️ Connected to GitHub ITS.csv</span>";
@@ -526,7 +582,29 @@
             });
 
             db.ref('config/volunteers').on('value', snap => {
-                renderVolunteers(snap.val() || {});
+                let vols = snap.val() || {};
+
+                // If the user came from index.html we need to figure out their name based on their password
+                // But we don't store passwords in session storage. 
+                // Let's at least grab the list to render.
+                renderVolunteers(vols);
+            });
+
+            if (currentRole === 'owner') {
+                db.ref('logs/admin_actions').on('value', snap => {
+                    globalActionLogs = snap.val() || {};
+                    updateAdminFilterDropdown();
+                    renderAdminLogs();
+                });
+            }
+        }
+
+        function logAdminAction(action) {
+            const timeNow = new Date().toLocaleString();
+            db.ref('logs/admin_actions').push().set({
+                time: timeNow,
+                admin: currentRole === 'owner' ? 'Owner' : 'Admin', // In a real app we'd get the actual name from index pass logic
+                action: action
             });
         }
 
@@ -559,25 +637,61 @@
             loadLogsForView();
         }
 
-        function updateDayName(slotNum, newName) { db.ref(`config/days/${slotNum}/name`).set(newName || `Day ${slotNum}`); }
-        function updateDayStatus(slotNum, newStatus) { db.ref(`config/days/${slotNum}/status`).set(newStatus); }
+        function updateDayName(slotNum, newName) {
+            let name = newName || `Day ${slotNum}`;
+            db.ref(`config/days/${slotNum}/name`).set(name);
+            logAdminAction(`Changed Slot ${slotNum} name to "${name}"`);
+        }
+        function updateDayStatus(slotNum, newStatus) {
+            db.ref(`config/days/${slotNum}/status`).set(newStatus);
+            logAdminAction(`Changed Slot ${slotNum} status to "${newStatus}"`);
+        }
 
         function renderVolunteers(vols) {
             const list = document.getElementById('volList'); list.innerHTML = '';
             if (Object.keys(vols).length === 0) { list.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No volunteers added yet.</li>'; return; }
             for (let pwd in vols) {
-                list.innerHTML += `<li class="item-row"><span><strong>${vols[pwd]}</strong> <span style="color:var(--primary-gold); margin-left:10px;">(Pass: ${pwd})</span></span><button class="btn-danger btn-small" onclick="deleteVolunteer('${pwd}')">Remove</button></li>`;
+                let vol = vols[pwd];
+                let isVolAdmin = false;
+                let volName = "";
+
+                if (typeof vol === 'string') {
+                    volName = vol;
+                } else {
+                    volName = vol.name;
+                    isVolAdmin = vol.isAdmin === true;
+                }
+
+                let adminBadge = isVolAdmin ? '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px;">ADMIN</span>' : '';
+
+                // Hide remove button for non-owners, or keep? The plan said owner only, but let's hide via CSS or JS conditionally
+                let removeBtn = currentRole === 'owner' ? `<button class="btn-danger btn-small" onclick="deleteVolunteer('${pwd}', '${volName}')">Remove</button>` : '';
+
+                list.innerHTML += `<li class="item-row"><span><strong>${volName}</strong> ${adminBadge} <span style="color:var(--primary-gold); margin-left:10px;">(Pass: ${pwd})</span></span>${removeBtn}</li>`;
             }
         }
 
         function addVolunteer() {
-            const name = document.getElementById('volName').value.trim(); const pass = document.getElementById('volPass').value.trim();
+            if (currentRole !== 'owner') return alert("Only the Owner can manage volunteers.");
+            const name = document.getElementById('volName').value.trim();
+            const pass = document.getElementById('volPass').value.trim();
+            const isAdmin = document.getElementById('volIsAdmin').checked;
+
             if (!name || !pass) return alert("Enter name and password.");
-            db.ref(`config/volunteers/${pass}`).set(name).catch(e => alert("Database Error: " + e.message));
-            document.getElementById('volName').value = ''; document.getElementById('volPass').value = '';
+            db.ref(`config/volunteers/${pass}`).set({ name: name, isAdmin: isAdmin }).catch(e => alert("Database Error: " + e.message));
+            logAdminAction(`Added volunteer "${name}" (Admin: ${isAdmin})`);
+
+            document.getElementById('volName').value = '';
+            document.getElementById('volPass').value = '';
+            document.getElementById('volIsAdmin').checked = false;
         }
 
-        function deleteVolunteer(pwd) { if (confirm("Remove this volunteer?")) db.ref(`config/volunteers/${pwd}`).remove(); }
+        function deleteVolunteer(pwd, volName) {
+            if (confirm(`Remove volunteer ${volName}?`)) {
+                db.ref(`config/volunteers/${pwd}`).remove();
+                logAdminAction(`Removed volunteer "${volName}"`);
+            }
+        }
 
         let currentLogListener = null;
 
@@ -623,10 +737,75 @@
             let csvContent = "data:text/csv;charset=utf-8,Session,Time,ITS number,Name,Scanned By\n";
             globalLogs.forEach(row => { let volName = row.volunteer || 'Unknown'; let safeName = dayName.replace(/,/g, ''); let safePersonName = row.name.replace(/,/g, ''); csvContent += `${safeName},${row.time},${row.id},${safePersonName},${volName}\n`; });
             const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `Cloud_Export_Slot${slotId}_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+
+            logAdminAction(`Exported Global CSV for ${dayName}`);
+        }
+
+        let globalActionLogs = {};
+
+        function updateAdminFilterDropdown() {
+            const filterDropdown = document.getElementById('adminLogFilter');
+            const currentFilter = filterDropdown.value;
+
+            let uniqueAdmins = new Set();
+            for (let key in globalActionLogs) {
+                if (globalActionLogs[key].admin) uniqueAdmins.add(globalActionLogs[key].admin);
+            }
+
+            filterDropdown.innerHTML = '<option value="all">-- All Admins --</option>';
+            uniqueAdmins.forEach(admin => {
+                filterDropdown.innerHTML += `<option value="${admin}">${admin}</option>`;
+            });
+
+            if (currentFilter && uniqueAdmins.has(currentFilter)) {
+                filterDropdown.value = currentFilter;
+            }
+        }
+
+        function renderAdminLogs() {
+            const tbody = document.getElementById('adminActionLogBody');
+            const filter = document.getElementById('adminLogFilter').value;
+            tbody.innerHTML = '';
+
+            let logsArray = Object.keys(globalActionLogs).map(key => ({ ...globalActionLogs[key], fbKey: key }));
+            logsArray.sort((a, b) => new Date(a.time) - new Date(b.time)); // Ascending
+
+            // Render backwards for newest on top
+            for (let i = logsArray.length - 1; i >= 0; i--) {
+                const log = logsArray[i];
+                if (filter !== 'all' && log.admin !== filter) continue;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size: 12px; color: #aaa;">${log.time}</td>
+                        <td style="color: var(--primary-gold); font-weight: 600;">${log.admin}</td>
+                        <td>${log.action}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function clearAdminLogs() {
+            if (confirm("⚠️ Are you sure you want to permanently delete all Admin Action Logs?")) {
+                db.ref('logs/admin_actions').remove();
+                logAdminAction("Cleared all previous admin action logs");
+            }
+        }
+    </script>
+    <script>
+        // Check that service workers are supported
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
         }
     </script>
 </body>
 
 </html>
-
-
