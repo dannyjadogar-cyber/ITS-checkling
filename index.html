@@ -1,60 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ITS Scannning</title>
     <link rel="icon" type="image/png" href="logo.png">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+
     <style>
-        :root { --primary-gold: #C19A6B; --primary-hover: #A8855F; --glass-bg: rgba(20, 20, 20, 0.65); --glass-border: rgba(255, 255, 255, 0.15); --text-light: #F8F9FA; --success-glow: rgba(40, 167, 69, 0.6); --error-glow: rgba(220, 53, 69, 0.6); --warning-glow: rgba(255, 193, 7, 0.6); }
-        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: url('image_062684.jpg'); background-color: #111; background-size: cover; background-position: center; background-attachment: fixed; }
-        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%); z-index: -1; }
-        
-        .main-container { width: 100%; display: flex; justify-content: center; padding: 20px; box-sizing: border-box;}
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); padding: 40px 50px; border-radius: 20px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: box-shadow 0.4s ease; box-sizing: border-box;}
-        
-        .glow-green { box-shadow: 0 0 40px var(--success-glow), inset 0 0 20px var(--success-glow) !important; border-color: #28a745 !important; } 
-        .glow-red { box-shadow: 0 0 40px var(--error-glow), inset 0 0 20px var(--error-glow) !important; border-color: #dc3545 !important; } 
-        .glow-yellow { box-shadow: 0 0 40px var(--warning-glow), inset 0 0 20px var(--warning-glow) !important; border-color: #ffc107 !important; }
-        
-        .header-title { font-family: 'Cinzel', serif; font-size: 24px; letter-spacing: 2px; text-align: center; margin: 0 0 30px 0; color: var(--primary-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(193, 154, 107, 0.3); padding-bottom: 15px; }
-        
-        input[type="text"], input[type="password"], select { width: 100%; padding: 15px 20px; font-size: 16px; font-family: 'Poppins', sans-serif; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background-color: rgba(255, 255, 255, 0.1); color: white; box-sizing: border-box; transition: 0.3s; }
-        input::placeholder { color: rgba(255,255,255,0.5); } input:focus, select:focus { outline: none; background-color: rgba(255, 255, 255, 0.15); border-color: var(--primary-gold); box-shadow: 0 0 15px rgba(193, 154, 107, 0.3); } input:disabled { background-color: rgba(0,0,0,0.2); cursor: not-allowed; color: rgba(255,255,255,0.3);}
-        select { appearance: none; cursor: pointer; } select option { background-color: #222; color: white; }
-        
-        #attendeeId { font-size: 24px; letter-spacing: 4px; text-align: center; font-weight: 600; border-color: var(--primary-gold); }
-        
-        .btn-primary { width: 100%; padding: 16px; font-size: 16px; font-family: 'Poppins', sans-serif; color: white; background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover)); border: none; border-radius: 10px; cursor: pointer; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.3); margin-bottom: 20px; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.4); } .btn-primary:disabled { background: #555; transform: none; box-shadow: none; cursor: not-allowed; color: #888;}
-        .btn-undo { background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.5); color: #ff8888; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%; margin-bottom: 20px; display: none; transition: 0.2s; } .btn-undo:hover { background: rgba(220, 53, 69, 0.4); color: white; }
-        
-        #scanResult { font-size: 18px; text-align: center; min-height: 70px; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); margin-bottom: 20px; border: 1px dashed rgba(255,255,255,0.2); display: flex; flex-direction: column; justify-content: center; }
-        .result-name { font-size: 24px; font-weight: 600; margin-top: 5px; color: white;}
-        
-        .search-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-bottom: 10px; } .search-container label { display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
-        .search-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; } .search-item:hover { background: rgba(255,255,255,0.15); border-color: var(--primary-gold); }
-        
-        .stats-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; } .stat-box { text-align: left; } .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); } .stat-value { font-size: 16px; color: var(--primary-gold); font-weight: 600; } .stat-large { font-size: 28px; color: white; line-height: 1; margin-top: 5px;}
-        
-        #scannerView { display: none; }
-        #networkStatus { font-size: 12px; color: #ffc107; text-align: center; margin-bottom: 15px; }
+        :root {
+            --primary-gold: #D4AF37;
+            --primary-hover: #F3E5AB;
+            --glass-bg: rgba(14, 38, 24, 0.75);
+            --glass-border: rgba(212, 175, 55, 0.3);
+            --text-light: #E8F0EA;
+            --success-glow: rgba(40, 167, 69, 0.6);
+            --error-glow: rgba(220, 53, 69, 0.6);
+            --warning-glow: rgba(255, 193, 7, 0.6);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #0b1c11;
+            background-image: linear-gradient(30deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(150deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(30deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(150deg, #112a1a 12%, transparent 12.5%, transparent 87%, #112a1a 87.5%, #112a1a), linear-gradient(60deg, #0f2416 25%, transparent 25.5%, transparent 75%, #0f2416 75%, #0f2416), linear-gradient(60deg, #0f2416 25%, transparent 25.5%, transparent 75%, #0f2416 75%, #0f2416);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+            background-attachment: fixed;
+            animation: scrollBackground 60s linear infinite;
+        }
+
+        @keyframes scrollBackground {
+            100% {
+                background-position: -80px -140px, -80px -140px, -40px -70px, -40px -70px, -80px -140px, -40px -70px;
+            }
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(10, 30, 20, 0.6) 0%, rgba(2, 10, 5, 0.95) 100%);
+            z-index: -1;
+        }
+
+        .main-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            padding: 40px 50px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            transition: box-shadow 0.4s ease;
+            box-sizing: border-box;
+        }
+
+        .glow-green {
+            box-shadow: 0 0 40px var(--success-glow), inset 0 0 20px var(--success-glow) !important;
+            border-color: #28a745 !important;
+        }
+
+        .glow-red {
+            box-shadow: 0 0 40px var(--error-glow), inset 0 0 20px var(--error-glow) !important;
+            border-color: #dc3545 !important;
+        }
+
+        .glow-yellow {
+            box-shadow: 0 0 40px var(--warning-glow), inset 0 0 20px var(--warning-glow) !important;
+            border-color: #ffc107 !important;
+        }
+
+        .header-title {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            letter-spacing: 2px;
+            text-align: center;
+            margin: 0 0 30px 0;
+            color: var(--primary-gold);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 15px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        input:disabled {
+            background-color: rgba(0, 0, 0, 0.2);
+            cursor: not-allowed;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        select option {
+            background-color: #222;
+            color: white;
+        }
+
+        #attendeeId {
+            font-size: 24px;
+            letter-spacing: 4px;
+            text-align: center;
+            font-weight: 600;
+            border-color: var(--primary-gold);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            color: #0b1c11;
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-hover));
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #555;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .btn-undo {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #ff8888;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 20px;
+            display: none;
+            transition: 0.2s;
+        }
+
+        .btn-undo:hover {
+            background: rgba(220, 53, 69, 0.4);
+            color: white;
+        }
+
+        #scanResult {
+            font-size: 18px;
+            text-align: center;
+            min-height: 70px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 5px;
+            color: white;
+        }
+
+        .search-container {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .search-container label {
+            display: block;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-gold);
+        }
+
+        .stats-container {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .stat-box {
+            text-align: left;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .stat-value {
+            font-size: 16px;
+            color: var(--primary-gold);
+            font-weight: 600;
+        }
+
+        .stat-large {
+            font-size: 28px;
+            color: white;
+            line-height: 1;
+            margin-top: 5px;
+        }
+
+        #scannerView {
+            display: none;
+        }
+
+        #networkStatus {
+            font-size: 12px;
+            color: #ffc107;
+            text-align: center;
+            margin-bottom: 15px;
+        }
 
         /* --- MOBILE RESPONSIVE CSS --- */
         @media (max-width: 600px) {
-            .glass-card { padding: 25px 15px; border-radius: 15px; width: 95%; }
-            .header-title { font-size: 22px; }
-            #attendeeId { font-size: 20px; letter-spacing: 2px; }
-            .stats-container { flex-direction: column; gap: 15px; align-items: center; }
-            .stat-box { text-align: center !important; }
+            .glass-card {
+                padding: 25px 15px;
+                border-radius: 15px;
+                width: 95%;
+            }
+
+            .header-title {
+                font-size: 22px;
+            }
+
+            #attendeeId {
+                font-size: 20px;
+                letter-spacing: 2px;
+            }
+
+            .stats-container {
+                flex-direction: column;
+                gap: 15px;
+                align-items: center;
+            }
+
+            .stat-box {
+                text-align: center !important;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="bg-overlay"></div>
     <div class="main-container">
@@ -62,31 +344,45 @@
             <h2 class="header-title">Idaratut Ta'reef Al Shakhsi</h2>
 
             <div id="loginView">
-                <div style="text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.7); font-size: 14px;">Volunteer Access Portal</div>
+                <div style="text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.7); font-size: 14px;">
+                    Volunteer Access Portal</div>
                 <div id="networkStatus">🔄 Connecting to Cloud Server...</div>
-                
-                <input type="password" id="volPassword" placeholder="Enter Unique Password" onkeypress="if(event.key==='Enter') loginVolunteer()" disabled>
+
+                <input type="password" id="volPassword" placeholder="Enter Unique Password"
+                    onkeypress="if(event.key==='Enter') loginVolunteer()" disabled>
                 <button class="btn-primary" id="loginBtn" onclick="loginVolunteer()" disabled>Secure Login</button>
             </div>
 
             <div id="scannerView">
-                <select id="volunteerEventSelect" onchange="switchEvent()"><option value="">-- Select Active Session --</option></select>
-                
-                <input type="text" id="attendeeId" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="8" placeholder="ENTER ITS NUMBER" onkeypress="handleKeyPress(event)" disabled>
-                
+                <select id="volunteerEventSelect" onchange="switchEvent()">
+                    <option value="">-- Select Active Session --</option>
+                </select>
+
+                <input type="text" id="attendeeId" inputmode="numeric" pattern="[0-9]*"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="8"
+                    placeholder="ENTER ITS NUMBER" onkeypress="handleKeyPress(event)" disabled>
+
                 <button class="btn-primary" id="submitBtn" onclick="verifyAndLog()" disabled>Log Attendance</button>
-                <div id="scanResult"><span style="color: rgba(255,255,255,0.5);">Awaiting session selection...</span></div>
+                <div id="scanResult"><span style="color: rgba(255,255,255,0.5);">Awaiting session selection...</span>
+                </div>
                 <button id="undoBtn" class="btn-undo" onclick="undoLastScan()">↩️ Undo Previous Scan</button>
 
                 <div class="search-container">
                     <label>Manual Name Search</label>
-                    <input type="text" id="searchInput" placeholder="Type attendee name..." onkeyup="searchAttendee()" disabled style="margin-bottom: 10px; font-size: 14px; padding: 12px;">
+                    <input type="text" id="searchInput" placeholder="Type attendee name..." onkeyup="searchAttendee()"
+                        disabled style="margin-bottom: 10px; font-size: 14px; padding: 12px;">
                     <div id="searchResults"></div>
                 </div>
 
                 <div class="stats-container">
-                    <div class="stat-box"><div class="stat-label">Volunteer</div><div class="stat-value" id="volNameDisplay">-</div></div>
-                    <div class="stat-box" style="text-align: right;"><div class="stat-label">Global Total Inside</div><div class="stat-large" id="totalCount">0</div></div>
+                    <div class="stat-box">
+                        <div class="stat-label">Volunteer</div>
+                        <div class="stat-value" id="volNameDisplay">-</div>
+                    </div>
+                    <div class="stat-box" style="text-align: right;">
+                        <div class="stat-label">Global Total Inside</div>
+                        <div class="stat-large" id="totalCount">0</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,13 +391,13 @@
     <script>
         // 🔴 🔴 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 🔴 🔴
         const firebaseConfig = {
-  apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
-  authDomain: "its-scanning-f8f5a.firebaseapp.com",
-  databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
-  projectId: "its-scanning-f8f5a",
-  storageBucket: "its-scanning-f8f5a.firebasestorage.app",
-  messagingSenderId: "590874259733",
-  appId: "1:590874259733:web:314d6a1fadb3780429b91c"
+            apiKey: "AIzaSyB8Dndt40YAMuL7Onvpk3c5JiMClMT0jA4",
+            authDomain: "its-scanning-f8f5a.firebaseapp.com",
+            databaseURL: "https://its-scanning-f8f5a-default-rtdb.firebaseio.com",
+            projectId: "its-scanning-f8f5a",
+            storageBucket: "its-scanning-f8f5a.firebasestorage.app",
+            messagingSenderId: "590874259733",
+            appId: "1:590874259733:web:314d6a1fadb3780429b91c"
         };
         // --------------------------------------------------
 
@@ -115,14 +411,14 @@
         function playSound(type) { if (audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime); gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.1); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3); } }
         function flashPanel(colorClass) { const card = document.getElementById('mainCard'); card.classList.add(colorClass); setTimeout(() => { card.classList.remove(colorClass); }, 600); }
 
-        window.onload = async function() {
+        window.onload = async function () {
             try {
                 const response = await fetch('ITS.csv');
                 if (response.ok) {
                     const text = await response.text();
                     const rows = text.split('\n');
                     for (let i = 1; i < rows.length; i++) {
-                        const cols = rows[i].split(','); 
+                        const cols = rows[i].split(',');
                         if (cols.length >= 2 && cols[0].trim() !== "") masterData[cols[0].trim()] = { name: cols[1].trim() };
                     }
                     document.getElementById('networkStatus').innerHTML = "<span style='color: #28a745;'>✔️ Cloud Connected & Ready</span>";
@@ -131,13 +427,13 @@
                 } else { document.getElementById('networkStatus').innerHTML = "<span style='color: #dc3545;'>❌ Error: ITS.csv not found on server.</span>"; }
             } catch (e) { document.getElementById('networkStatus').innerHTML = "<span style='color: #dc3545;'>❌ Error connecting to server.</span>"; }
 
-            db.ref('config/days').on('value', snap => { globalDays = snap.val() || {}; if(currentVolunteerName) updateDropdown(); });
+            db.ref('config/days').on('value', snap => { globalDays = snap.val() || {}; if (currentVolunteerName) updateDropdown(); });
             db.ref('config/volunteers').on('value', snap => { cloudVols = snap.val() || {}; });
         };
 
         function loginVolunteer() {
             const pass = document.getElementById('volPassword').value.trim();
-            if(cloudVols[pass]) {
+            if (cloudVols[pass]) {
                 currentVolunteerName = cloudVols[pass];
                 document.getElementById('loginView').style.display = 'none';
                 document.getElementById('scannerView').style.display = 'block';
@@ -150,13 +446,13 @@
             const dropdown = document.getElementById('volunteerEventSelect');
             dropdown.innerHTML = '<option value="">-- Select Active Session --</option>';
             let activeFound = false;
-            for(let i=1; i<=10; i++) {
+            for (let i = 1; i <= 10; i++) {
                 let day = globalDays[i];
-                if(day && day.status === 'active') { dropdown.innerHTML += `<option value="${i}" data-name="${day.name}">${day.name}</option>`; activeFound = true; }
+                if (day && day.status === 'active') { dropdown.innerHTML += `<option value="${i}" data-name="${day.name}">${day.name}</option>`; activeFound = true; }
             }
             if (!activeFound) dropdown.innerHTML = '<option value="">-- No Active Sessions --</option>';
-            
-            if(currentSlotId && (!globalDays[currentSlotId] || globalDays[currentSlotId].status !== 'active')) {
+
+            if (currentSlotId && (!globalDays[currentSlotId] || globalDays[currentSlotId].status !== 'active')) {
                 dropdown.value = ""; switchEvent();
             } else if (currentSlotId) { dropdown.value = currentSlotId; }
         }
@@ -169,25 +465,25 @@
             currentDayName = currentSlotId ? selectEl.options[selectEl.selectedIndex].getAttribute('data-name') : "";
 
             const state = currentSlotId === "";
-            document.getElementById('attendeeId').disabled = state; 
-            document.getElementById('submitBtn').disabled = state; 
+            document.getElementById('attendeeId').disabled = state;
+            document.getElementById('submitBtn').disabled = state;
             document.getElementById('searchInput').disabled = state;
-            
+
             if (state) {
                 document.getElementById('scanResult').innerHTML = "<span style='color: rgba(255,255,255,0.5);'>Awaiting session selection...</span>";
                 document.getElementById('totalCount').innerText = "0"; document.getElementById('undoBtn').style.display = 'none';
                 if (currentLogListener) db.ref(currentLogListener).off();
             } else {
                 document.getElementById('scanResult').innerHTML = `<span style='color: var(--primary-gold);'>Ready for "${currentDayName}" scans...</span>`;
-                document.getElementById('attendeeId').focus(); lastPushedKey = null; 
+                document.getElementById('attendeeId').focus(); lastPushedKey = null;
 
                 if (currentLogListener) db.ref(currentLogListener).off();
                 currentLogListener = `logs/slot_${currentSlotId}`;
 
                 db.ref(currentLogListener).on('value', snap => {
                     const logsObj = snap.val() || {};
-                    cloudLogs = Object.keys(logsObj).map(key => ({...logsObj[key], fbKey: key}));
-                    document.getElementById('totalCount').innerText = cloudLogs.length; 
+                    cloudLogs = Object.keys(logsObj).map(key => ({ ...logsObj[key], fbKey: key }));
+                    document.getElementById('totalCount').innerText = cloudLogs.length;
                 });
             }
         }
@@ -197,27 +493,27 @@
         function searchAttendee() {
             if (currentSlotId === "") return;
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const resultsDiv = document.getElementById('searchResults'); resultsDiv.innerHTML = ''; 
-            if (query.length < 2) return; 
+            const resultsDiv = document.getElementById('searchResults'); resultsDiv.innerHTML = '';
+            if (query.length < 2) return;
 
             let matchCount = 0;
             for (const [id, person] of Object.entries(masterData)) {
                 if (person.name.toLowerCase().includes(query)) {
                     const div = document.createElement('div'); div.className = 'search-item';
                     div.innerHTML = `<strong style="color: #fff; font-size: 14px;">${person.name}</strong><small style="color: var(--primary-gold); font-family: monospace; font-size: 14px;">${id}</small>`;
-                    div.onclick = function() { document.getElementById('attendeeId').value = id; document.getElementById('searchInput').value = ''; resultsDiv.innerHTML = ''; verifyAndLog(); };
+                    div.onclick = function () { document.getElementById('attendeeId').value = id; document.getElementById('searchInput').value = ''; resultsDiv.innerHTML = ''; verifyAndLog(); };
                     resultsDiv.appendChild(div); matchCount++;
-                } if (matchCount >= 4) break; 
+                } if (matchCount >= 4) break;
             }
             if (matchCount === 0) resultsDiv.innerHTML = "<div style='color:#dc3545; padding:10px; font-size: 14px;'>No matches found.</div>";
         }
 
         function undoLastScan() {
             if (!lastPushedKey || currentSlotId === "") return alert("You can only undo your most recent scan.");
-            
+
             db.ref(`logs/slot_${currentSlotId}/${lastPushedKey}`).remove().then(() => {
                 document.getElementById('scanResult').innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Scan Removed</span><span class='result-name' style='color:#aaa;'>Previous scan deleted</span>`;
-                lastPushedKey = null; 
+                lastPushedKey = null;
                 document.getElementById('undoBtn').style.display = 'none'; document.getElementById('attendeeId').focus();
             });
         }
@@ -237,24 +533,22 @@
                 resultDiv.innerHTML = `<span style='color:#ffc107; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>Already SCANNED</span><span class='result-name'>${displayName}</span>`;
             } else {
                 playSound('success'); flashPanel('glow-green');
-                const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-                
+                const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
                 let pName = masterData[inputId] ? masterData[inputId].name : "Mehman";
                 let statusMsg = masterData[inputId] ? "SCANNED" : "Guest Approved";
-                
+
                 resultDiv.innerHTML = `<span style='color:#28a745; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;'>${statusMsg}</span><span class='result-name'>${pName}</span>`;
-                
+
                 const newRef = db.ref(`logs/slot_${currentSlotId}`).push();
                 newRef.set({ time: timeNow, id: inputId, name: pName, volunteer: currentVolunteerName });
-                
+
                 lastPushedKey = newRef.key; document.getElementById('undoBtn').style.display = 'block';
             }
-            
-            inputField.value = ''; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; inputField.focus(); 
+
+            inputField.value = ''; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; inputField.focus();
         }
     </script>
 </body>
+
 </html>
-
-
-
