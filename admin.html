@@ -435,13 +435,13 @@
             </div>
         </div>
 
-        <div class="section-card owner-only">
+        <div class="section-card">
             <h3>3. Manage Volunteers (Live Sync)</h3>
             <div class="flex-row">
                 <input type="text" id="volName" placeholder="Volunteer Name" style="flex: 1;">
                 <input type="text" id="volPass" placeholder="Unique Password" style="flex: 1;"
                     onkeypress="if(event.key==='Enter') addVolunteer()">
-                <label
+                <label class="owner-only"
                     style="display: flex; align-items: center; gap: 5px; color: var(--primary-gold); font-size: 13px; white-space: nowrap;">
                     <input type="checkbox" id="volIsAdmin" style="width: auto; margin: 0;"> Make Admin
                 </label>
@@ -672,10 +672,10 @@
         }
 
         function addVolunteer() {
-            if (currentRole !== 'owner') return alert("Only the Owner can manage volunteers.");
             const name = document.getElementById('volName').value.trim();
             const pass = document.getElementById('volPass').value.trim();
-            const isAdmin = document.getElementById('volIsAdmin').checked;
+            // Force isAdmin to false if the user is not the owner
+            const isAdmin = currentRole === 'owner' ? document.getElementById('volIsAdmin').checked : false;
 
             if (!name || !pass) return alert("Enter name and password.");
             db.ref(`config/volunteers/${pass}`).set({ name: name, isAdmin: isAdmin }).catch(e => alert("Database Error: " + e.message));
